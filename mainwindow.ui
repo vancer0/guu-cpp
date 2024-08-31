@@ -994,7 +994,7 @@
   <customwidget>
    <class>PictureList</class>
    <extends>QListWidget</extends>
-   <header>../../../../picturelist.h</header>
+   <header>../../../picturelist.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

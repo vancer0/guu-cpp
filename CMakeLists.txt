@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(guu-cpp VERSION 10 LANGUAGES CXX)
 
-include(conan.cmake)
-conan_cmake_run(CONANFILE conanfile.txt
-                BASIC_SETUP CMAKE_TARGETS
-                BUILD missing)
-
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
