@@ -1,0 +1,13 @@
+[requires]
+nlohmann_json/3.11.3
+jwt-cpp/0.7.0
+cpr/1.10.5
+platformfolders/4.2.0
+libtorrent/2.0.10
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout
