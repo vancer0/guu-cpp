@@ -1,0 +1,35 @@
+name: Build
+
+on: workflow_dispatch
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install ninja
+      uses: seanmiddleditch/gha-setup-ninja@master
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.7.*'
+        host: 'linux'
+        target: 'desktop'
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: "guu-linux"
+        path: "${{github.workspace}}/build"
