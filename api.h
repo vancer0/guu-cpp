@@ -6,7 +6,7 @@
 #include <vector>
 #include <regex>
 #include <map>
-#include <cpr/cpr.h>
+#include "cpr/cpr.h"
 #include "categories.h"
 
 #define TIMEOUT 5000 // ms

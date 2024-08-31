@@ -1,7 +1,7 @@
 #include "api.h"
 #include <sstream>
-#include <jwt-cpp/jwt.h>
-#include <jwt-cpp/traits/nlohmann-json/defaults.h>
+#include "jwt-cpp/jwt.h"
+#include "jwt-cpp/traits/nlohmann-json/defaults.h"
 
 API::API() {
     Url = "https://gaytor.rent";

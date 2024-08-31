@@ -1,8 +1,6 @@
 #include "uploadworker.h"
 #include <iostream>
 
-#include <QTimer>
-#include <QEventLoop>
 #include "utils.h"
 #include <filesystem>
 #include <fstream>
