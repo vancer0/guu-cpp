@@ -6,19 +6,61 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  # build-linux:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - uses: actions/checkout@v3
+
+  #   - name: Install Qt
+  #     uses: jurplel/install-qt-action@v4
+  #     with:
+  #       version: '6.7.2'
+  #       host: 'linux'
+  #       target: 'desktop'
+  #       arch: 'linux_gcc_64'
+    
+  #   - name: Install Conan
+  #     id: conan
+  #     uses: turtlebrowser/get-conan@main
+
+  #   - name: Configure Conan
+  #     run: conan profile detect --force
+
+  #   - name: Install dependencies
+  #     run: conan install ${{github.workspace}} --output-folder=${{github.workspace}}/build --build=missing
+
+  #   - name: Configure CMake
+  #     run: |
+  #       cmake -B ${{github.workspace}}/build \
+  #       -DCMAKE_TOOLCHAIN_FILE="${{github.workspace}}/build/build/Release/generators/conan_toolchain.cmake" \
+  #       -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+  #   - name: Build
+  #     run: cmake --build ${{github.workspace}}/build
+
+  #   - name: Upload artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: "guu-linux"
+  #       path: "${{github.workspace}}/build/guu-cpp"
+
+  build-windows:
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
 
+    - name: Setup ninja
+      uses: seanmiddleditch/gha-setup-ninja@master
+
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.7.*'
-        host: 'linux'
+        version: '6.7.2'
+        host: 'windows'
         target: 'desktop'
-        arch: 'linux_gcc_64'
+        arch: 'win64_msvc2019_64'
     
     - name: Install Conan
       id: conan
@@ -42,5 +84,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: "guu-linux"
-        path: "${{github.workspace}}/build"
+        name: "guu-windows"
+        path: "${{github.workspace}}/build/guu-cpp.exe"
