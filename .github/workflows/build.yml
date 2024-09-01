@@ -6,44 +6,37 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  # build-linux:
-  #   runs-on: ubuntu-latest
+  build-linux:
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #   - uses: actions/checkout@v3
+    steps:
+    - uses: actions/checkout@v3
 
-  #   - name: Install Qt
-  #     uses: jurplel/install-qt-action@v4
-  #     with:
-  #       version: '6.7.2'
-  #       host: 'linux'
-  #       target: 'desktop'
-  #       arch: 'linux_gcc_64'
+    - uses: lukka/get-cmake@latest
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.7.2'
+        host: 'linux'
+        target: 'desktop'
+        arch: 'linux_gcc_64'
     
-  #   - name: Install Conan
-  #     id: conan
-  #     uses: turtlebrowser/get-conan@main
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v11
 
-  #   - name: Configure Conan
-  #     run: conan profile detect --force
+    - name: Run CMake with vcpkg.json manifest
+      uses: lukka/run-cmake@v10
+      with:
+        configurePreset: cfg
+        buildPreset: bld
+        buildPresetAdditionalArgs: "['--config Release']"
 
-  #   - name: Install dependencies
-  #     run: conan install ${{github.workspace}} --output-folder=${{github.workspace}}/build --build=missing
-
-  #   - name: Configure CMake
-  #     run: |
-  #       cmake -B ${{github.workspace}}/build \
-  #       -DCMAKE_TOOLCHAIN_FILE="${{github.workspace}}/build/build/Release/generators/conan_toolchain.cmake" \
-  #       -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-
-  #   - name: Build
-  #     run: cmake --build ${{github.workspace}}/build
-
-  #   - name: Upload artifact
-  #     uses: actions/upload-artifact@v3
-  #     with:
-  #       name: "guu-linux"
-  #       path: "${{github.workspace}}/build/guu-cpp"
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: "guu-linux"
+        path: "${{github.workspace}}/build/Release"
 
   build-windows:
     runs-on: windows-latest
@@ -75,9 +68,9 @@ jobs:
     - name: Run windeployqt
       run: |
         mkdir "${{github.workspace}}\out"
-        cp "${{github.workspace}}\build\Release\guu-cpp.exe" "${{github.workspace}}\out\guu.exe"
+        cp "${{github.workspace}}\build\Release\*" "${{github.workspace}}\out"
         cd ${{github.workspace}}\out
-        ${{github.workspace}}\qt\Qt\6.7.2\msvc2019_64\bin\windeployqt.exe "${{github.workspace}}\out\guu.exe" --release
+        ${{github.workspace}}\qt\Qt\6.7.2\msvc2019_64\bin\windeployqt.exe "${{github.workspace}}\out\guu-cpp.exe" --release
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
