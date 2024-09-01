@@ -3,7 +3,7 @@
     "configurePresets": [
       {
         "name": "cfg",
-        "generator": "Ninja",
+        "generator": "Ninja Multi-Config",
         "binaryDir": "${sourceDir}/build",
         "cacheVariables": {
           "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
@@ -14,7 +14,8 @@
     "buildPresets": [
         {
             "name": "bld",
-            "configurePreset": "cfg"
+            "configurePreset": "cfg",
+            "configuration": "Release"
         }
     ]
   }

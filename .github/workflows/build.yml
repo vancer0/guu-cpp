@@ -60,6 +60,7 @@ jobs:
         host: 'windows'
         target: 'desktop'
         arch: 'win64_msvc2019_64'
+        dir: '${{github.workspace}}\qt\'
 
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
@@ -69,9 +70,17 @@ jobs:
       with:
         configurePreset: cfg
         buildPreset: bld
+        buildPresetAdditionalArgs: "['--config Release']"
+
+    - name: Run windeployqt
+      run: |
+        mkdir "${{github.workspace}}\out"
+        cp "${{github.workspace}}\build\Release\guu-cpp.exe" "${{github.workspace}}\out\guu.exe"
+        cd ${{github.workspace}}\out
+        ${{github.workspace}}\qt\Qt\6.7.2\msvc2019_64\bin\windeployqt.exe "${{github.workspace}}\out\guu.exe" --release
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: "guu-windows"
-        path: "${{github.workspace}}/build/guu-cpp.exe"
+        path: '${{github.workspace}}\out'
