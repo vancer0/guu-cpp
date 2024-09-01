@@ -13,10 +13,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(cpr REQUIRED)
-find_package(jwt-cpp REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(platform_folders REQUIRED)
 find_package(LibtorrentRasterbar REQUIRED)
+
+find_path(JWT_CPP_INCLUDE_DIRS "jwt-cpp/base.h")
 
 set(PROJECT_SOURCES
         main.cpp
@@ -63,13 +64,13 @@ endif()
 
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 
+target_include_directories(guu-cpp PRIVATE ${JWT_CPP_INCLUDE_DIRS})
+
 target_link_libraries(guu-cpp PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(guu-cpp PRIVATE nlohmann_json::nlohmann_json)
-target_link_libraries(guu-cpp PRIVATE jwt-cpp::jwt-cpp)
 target_link_libraries(guu-cpp PRIVATE cpr::cpr)
 target_link_libraries(guu-cpp PRIVATE sago::platform_folders)
 target_link_libraries(guu-cpp PRIVATE LibtorrentRasterbar::torrent-rasterbar)
-
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "cpr",
+    "jwt-cpp",
+    "nlohmann-json",
+    "platform-folders",
+    "libtorrent"
+  ]
+}

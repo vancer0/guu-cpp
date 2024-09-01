@@ -1,7 +1,7 @@
 #include "api.h"
 #include <sstream>
 #include "jwt-cpp/jwt.h"
-#include "jwt-cpp/traits/nlohmann-json/defaults.h"
+#include "jwt-cpp/traits/kazuho-picojson/defaults.h"
 
 API::API() {
     Url = "https://gaytor.rent";
@@ -106,7 +106,7 @@ str API::fetchUsername() {
 
     auto decoded = jwt::decode(token);
 
-    return decoded.get_payload_json()["username"];
+    return decoded.get_payload_json()["username"].get<std::string>();
 }
 
 bool API::clearUploadPictures() {
