@@ -77,3 +77,35 @@ jobs:
       with:
         name: "guu-windows"
         path: '${{github.workspace}}\out'
+
+  build-mac:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: lukka/get-cmake@latest
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.7.2'
+        host: 'mac'
+        target: 'desktop'
+        arch: 'clang_64'
+    
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v11
+
+    - name: Run CMake with vcpkg.json manifest
+      uses: lukka/run-cmake@v10
+      with:
+        configurePreset: cfg
+        buildPreset: bld
+        buildPresetAdditionalArgs: "['--config Release']"
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: "guu-mac"
+        path: "${{github.workspace}}/build/Release"
