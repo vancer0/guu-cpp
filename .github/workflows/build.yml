@@ -51,8 +51,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Setup ninja
-      uses: seanmiddleditch/gha-setup-ninja@master
+    - uses: lukka/get-cmake@latest
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
@@ -62,12 +61,14 @@ jobs:
         target: 'desktop'
         arch: 'win64_msvc2019_64'
 
-    - name: Configure CMake
-      run: |
-        cmake --preset=default
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v11
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}\build
+    - name: Run CMake with vcpkg.json manifest
+      uses: lukka/run-cmake@v10
+      with:
+        configurePreset: cfg
+        buildPreset: bld
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3

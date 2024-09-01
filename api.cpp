@@ -1,7 +1,9 @@
 #include "api.h"
 #include <sstream>
-#include "jwt-cpp/jwt.h"
-#include "jwt-cpp/traits/kazuho-picojson/defaults.h"
+
+#undef max
+#undef min
+#include "jwt-cpp/traits/nlohmann-json/traits.h"
 
 API::API() {
     Url = "https://gaytor.rent";

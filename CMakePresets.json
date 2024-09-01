@@ -2,7 +2,7 @@
     "version": 2,
     "configurePresets": [
       {
-        "name": "default",
+        "name": "cfg",
         "generator": "Ninja",
         "binaryDir": "${sourceDir}/build",
         "cacheVariables": {
@@ -10,5 +10,11 @@
           "CMAKE_BUILD_TYLE": "Release"
         }
       }
+    ],
+    "buildPresets": [
+        {
+            "name": "bld",
+            "configurePreset": "cfg"
+        }
     ]
   }
