@@ -30,7 +30,7 @@ public:
 
   bool autoDl = false;
   str client = Clients[0];
-  str qBitHost = "localhost";
+  str qBitHost = "http://localhost";
   str qBitPort = "8080";
   str qBitUsername = "admin";
   str qBitPassword = "";
