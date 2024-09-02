@@ -36,7 +36,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: "guu-linux"
-        path: "${{github.workspace}}/build/Release"
+        path: "${{github.workspace}}/build/src/Release"
 
   build-windows:
     runs-on: windows-latest
@@ -68,7 +68,7 @@ jobs:
     - name: Run windeployqt
       run: |
         mkdir "${{github.workspace}}\out"
-        cp "${{github.workspace}}\build\Release\*" "${{github.workspace}}\out"
+        cp "${{github.workspace}}\build\src\Release\*" "${{github.workspace}}\out"
         cd ${{github.workspace}}\out
         ${{github.workspace}}\qt\Qt\6.7.2\msvc2019_64\bin\windeployqt.exe "${{github.workspace}}\out\guu-cpp.exe" --release
 
@@ -108,4 +108,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: "guu-mac"
-        path: "${{github.workspace}}/build/Release"
+        path: "${{github.workspace}}/build/src/Release"
