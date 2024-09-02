@@ -78,7 +78,7 @@ void UploadWorker::doWork() {
     emit textChanged("Verifying torrent...");
     emit valueChanged(currStage++);
 
-    std::string tempPath = utils::tempDirPath() + "dl.torrent";
+    std::string tempPath = utils::tempDirPath() + "/dl.torrent";
     if (!Data.api->download(url, tempPath)) {
       emit errorRaised("The uploaded torrent could not be verified.");
       return;

@@ -31,11 +31,10 @@ void qBitTorrent::configure(Settings *settings) {
 }
 
 bool qBitTorrent::isConnected() {
-    auto r = cpr::Get(cpr::Url{webUiUrl + "/api/v2/app/version"},
-                      header,
-                      cpr::Timeout{CLIENT_TIMEOUT});
+  auto r = cpr::Get(cpr::Url{webUiUrl + "/api/v2/app/version"}, header,
+                    cpr::Timeout{CLIENT_TIMEOUT});
 
-    return r.status_code == 200;
+  return r.status_code == 200;
 }
 
 bool qBitTorrent::addTorrent(std::vector<char> torrent, str localPath) {
@@ -65,26 +64,22 @@ void uTorrent::configure(Settings *settings) {
   }
 }
 
-bool uTorrent::isConnected()
-{
-    return std::filesystem::exists(Path);
-}
+bool uTorrent::isConnected() { return std::filesystem::exists(Path); }
 
-bool uTorrent::addTorrent(std::vector<char> torrent, str localPath)
-{
-    str tmpPath = utils::tempDirPath() + "/temp.torrent";
+bool uTorrent::addTorrent(std::vector<char> torrent, str localPath) {
+  str tmpPath = utils::tempDirPath() + "/temp.torrent";
 
-    std::ofstream file(tmpPath, std::ios::out | std::ios::binary);
-    if (!file)
-        return false;
+  std::ofstream file(tmpPath, std::ios::out | std::ios::binary);
+  if (!file)
+    return false;
 
-    copy(torrent.cbegin(), torrent.cend(), std::ostreambuf_iterator<char>(file));
+  copy(torrent.cbegin(), torrent.cend(), std::ostreambuf_iterator<char>(file));
 
-    str command = Path + "/DIRECTORIES \"" + tmpPath + "\" \"" + localPath + "\"";
-    int returnCode = system(command.c_str());
+  str command = Path + "/DIRECTORIES \"" + tmpPath + "\" \"" + localPath + "\"";
+  int returnCode = system(command.c_str());
 
-    std::filesystem::remove(tmpPath);
+  std::filesystem::remove(tmpPath);
 
-    return returnCode == 0;
+  return returnCode == 0;
 }
 #endif

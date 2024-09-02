@@ -91,10 +91,10 @@ void utils::checkForUpdates() {
 
 #ifdef _WIN32
 std::string utils::autoDetectUTorrentPath() {
-    std::string usual = "C:\\Program Files (x86)\\uTorrent\\uTorrent.exe";
-    if (std::filesystem::exists(usual))
-        return usual;
-    else
-        return "";
+  std::string usual = "C:\\Program Files (x86)\\uTorrent\\uTorrent.exe";
+  if (std::filesystem::exists(usual))
+    return usual;
+  else
+    return "";
 }
 #endif

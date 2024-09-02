@@ -50,8 +50,13 @@ int main(int argc, char *argv[]) {
     splash->showMessage("Logging in...");
     a.processEvents();
     api.login(settings.gtUsername, settings.gtPassword);
-    splash->showMessage("Logged in!");
-    a.processEvents();
+    if (api.isLoggedIn()) {
+      splash->showMessage("Logged in!");
+      a.processEvents();
+    } else {
+      splash->showMessage("Could not log in.");
+      a.processEvents();
+    }
   }
 
   MainWindow w(nullptr, &settings, &api);
