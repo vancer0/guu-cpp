@@ -8,15 +8,12 @@ SettingsWindow::SettingsWindow(QWidget *parent)
     , ui(new Ui::SettingsWindow)
 {
     ui->setupUi(this);
-    ui->qBitSettings->hide();
-    ui->uTorrSettings->hide();
-    this->resize(1, 1);
-    this->setMaximumSize(this->size());
 
     connect(ui->autoLogin, &QCheckBox::stateChanged, this, &SettingsWindow::enableLoginBox);
     connect(ui->autoDl, &QCheckBox::stateChanged, this, &SettingsWindow::enableClientBox);
     connect(ui->saveUploads, &QCheckBox::stateChanged, this, &SettingsWindow::enableDownloadSetting);
     connect(ui->savePathBrowse, &QPushButton::pressed, this, &SettingsWindow::selectSavePath);
+    connect(ui->uTorBrowse, &QPushButton::pressed, this, &SettingsWindow::selectuTorPath);
     connect(ui->torrentClient,
             &QComboBox::currentIndexChanged,
             this,
@@ -60,21 +57,27 @@ void SettingsWindow::updateClientSettings()
         return;
     }
 
+    ui->qBitSettings->setVisible(false);
+    ui->uTorrSettings->setVisible(false);
+    ui->qBitSettings->hide();
+    ui->uTorrSettings->hide();
+
     std::string name = Cfg->Clients[ui->torrentClient->currentIndex()];
 
     if (name == "qBitTorrent") {
+        ui->qBitSettings->setVisible(true);
         ui->qBitSettings->show();
-        ui->uTorrSettings->hide();
     }
 
 #ifdef _WIN32
     if (name == "uTorrent") {
-        ui->qBitSettings->hide();
+        ui->uTorrSettings->setVisible(true);
         ui->uTorrSettings->show();
     }
 #endif
 
-    this->adjustSize();
+    this->resize(1, 1);
+    this->setMaximumSize(this->size());
 }
 
 void SettingsWindow::updateBoxes()
@@ -94,7 +97,8 @@ void SettingsWindow::selectuTorPath()
 {
     auto path = QFileDialog::getOpenFileName(this,
                                              tr("Select uTorrent Path"),
-                                             tr("Executables (*.exe)"));
+                                             "",
+                                             tr("uTorrent Executable (uTorrent.exe)"));
     ui->uTorPath->clear();
     ui->uTorPath->setText(path);
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>621</width>
-    <height>254</height>
+    <width>626</width>
+    <height>226</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -130,24 +130,54 @@
      </property>
     </widget>
    </item>
-   <item alignment="Qt::AlignmentFlag::AlignRight">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>               This program is licensed under GNU General Public License v2.0</string>
-     </property>
-    </widget>
-   </item>
-   <item alignment="Qt::AlignmentFlag::AlignRight">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#e9643a;&quot;&gt;View license&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="openExternalLinks">
-      <bool>true</bool>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
-     </property>
+   <item>
+    <widget class="QWidget" name="horizontalWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Policy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>60</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item alignment="Qt::AlignmentFlag::AlignRight">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This program is licensed under &lt;a href=&quot;https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#c04a14;&quot;&gt;GNU General Public License v2.0&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -166,7 +196,7 @@
    <item alignment="Qt::AlignmentFlag::AlignRight">
     <widget class="QLabel" name="label_9">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/vancer0/guu-cpp&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#e9643a;&quot;&gt;GitHub Repository&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/vancer0/guu-cpp&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#c04a14;&quot;&gt;GitHub Repository&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>

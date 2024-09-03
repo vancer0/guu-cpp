@@ -25,66 +25,48 @@ MainWindow::~MainWindow() {
   delete ui;
 }
 void MainWindow::uiSetup() {
-  if (Cfg->autoDl)
-    this->loadTorrentClient();
-  SettingsWin.setData(Client, Cfg);
-  SettingsWin.updateBoxes();
+    if (Cfg->autoDl)
+        this->loadTorrentClient();
+    SettingsWin.setData(Client, Cfg);
+    SettingsWin.updateBoxes();
 
-  // Menu bar
-  connect(ui->actionExit, &QAction::triggered, this, []() { exit(0); });
-  connect(ui->actionNew, &QAction::triggered, this,
-          &MainWindow::clearAllFields);
-  connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::openProject);
-  connect(ui->actionSave, &QAction::triggered, this, &MainWindow::saveProject);
-  connect(ui->actionSave_As, &QAction::triggered, this,
-          &MainWindow::saveProjectAs);
-  connect(ui->actionAbout, &QAction::triggered, this,
-          &MainWindow::openAboutWindow);
-  connect(ui->actionPreferences, &QAction::triggered, this,
-          &MainWindow::openSettingsWindow);
-  connect(ui->actionReload_categories, &QAction::triggered, this,
-          &MainWindow::reloadCategories);
-  connect(ui->actionRefresh_status, &QAction::triggered, this,
-          &MainWindow::refreshInfo);
-  connect(ui->actionCheckupdates, &QAction::triggered, nullptr,
-          utils::checkForUpdates);
+    // Menu bar
+    connect(ui->actionExit, &QAction::triggered, this, []() { exit(0); });
+    connect(ui->actionNew, &QAction::triggered, this, &MainWindow::clearAllFields);
+    connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::openProject);
+    connect(ui->actionSave, &QAction::triggered, this, &MainWindow::saveProject);
+    connect(ui->actionSave_As, &QAction::triggered, this, &MainWindow::saveProjectAs);
+    connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::openAboutWindow);
+    connect(ui->actionPreferences, &QAction::triggered, this, &MainWindow::openSettingsWindow);
+    connect(ui->actionReload_categories, &QAction::triggered, this, &MainWindow::reloadCategories);
+    connect(ui->actionRefresh_status, &QAction::triggered, this, &MainWindow::refreshInfo);
+    connect(ui->actionCheckupdates, &QAction::triggered, nullptr, utils::checkForUpdates);
 
-  // File
-  connect(ui->fileSelBtn, &QPushButton::pressed, this, &MainWindow::selectFile);
-  connect(ui->folderSelBtn, &QPushButton::pressed, this,
-          &MainWindow::selectFolder);
+    // File
+    connect(ui->fileSelBtn, &QPushButton::pressed, this, &MainWindow::selectFile);
+    connect(ui->folderSelBtn, &QPushButton::pressed, this, &MainWindow::selectFolder);
 
-  // Category selectors
-  connect(ui->category, &QComboBox::currentIndexChanged, this,
-          &MainWindow::enableItemsAuto);
-  connect(ui->subcategory1, &QComboBox::currentIndexChanged, this,
-          &MainWindow::enableItemsAuto);
-  connect(ui->subcategory2, &QComboBox::currentIndexChanged, this,
-          &MainWindow::enableItemsAuto);
-  connect(ui->subcategory3, &QComboBox::currentIndexChanged, this,
-          &MainWindow::enableItemsAuto);
-  connect(ui->subcategory4, &QComboBox::currentIndexChanged, this,
-          &MainWindow::enableItemsAuto);
+    // Category selectors
+    connect(ui->category, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
+    connect(ui->subcategory1, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
+    connect(ui->subcategory2, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
+    connect(ui->subcategory3, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
+    connect(ui->subcategory4, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
 
-  // Picture table
-  connect(ui->addPicBtn, &QPushButton::pressed, this,
-          &MainWindow::selectPictures);
-  connect(ui->rmPicBtn, &QPushButton::pressed, this,
-          &MainWindow::removePictures);
+    // Picture table
+    connect(ui->addPicBtn, &QPushButton::pressed, this, &MainWindow::selectPictures);
+    connect(ui->rmPicBtn, &QPushButton::pressed, this, &MainWindow::removePictures);
 
-  // Info
-  connect(ui->uploadBtn, &QPushButton::pressed, this,
-          &MainWindow::uploadChecks);
+    // Info
+    connect(ui->uploadBtn, &QPushButton::pressed, this, &MainWindow::uploadChecks);
 
-  // Login window
-  connect(LoginWin.getButton(), &QPushButton::clicked, this,
-          &MainWindow::login);
+    // Login window
+    connect(LoginWin.getButton(), &QPushButton::clicked, this, &MainWindow::login);
 
-  // Settings window
-  connect(SettingsWin.getButton(), &QPushButton::clicked, this,
-          &MainWindow::applySettings);
+    // Settings window
+    connect(SettingsWin.getButton(), &QPushButton::clicked, this, &MainWindow::applySettings);
 
-  this->refreshInfo();
+    this->refreshInfo();
 }
 
 void MainWindow::enableItemsAll(bool enable) {

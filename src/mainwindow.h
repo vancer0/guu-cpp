@@ -31,6 +31,7 @@ public:
   void openAboutWindow() { AboutWin.show(); }
   void openLoginWindow() { LoginWin.show(); }
   void openSettingsWindow() {
+      SettingsWin.updateClientSettings();
       SettingsWin.applySettings();
       SettingsWin.show();
   }

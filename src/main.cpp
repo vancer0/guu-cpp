@@ -4,6 +4,7 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QSplashScreen>
+#include <QStyleFactory>
 
 #include "api.h"
 #include "constants.h"
@@ -13,13 +14,17 @@
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
   a.setApplicationName("Gaytor.rent Upload Utility");
+  a.setStyle(QStyleFactory::create("Fusion"));
+  QPalette p = qApp->palette();
+  p.setColor(QPalette::Highlight, QColor(210, 102, 53));
+  qApp->setPalette(p);
 
   QPixmap pixmap(":/splash.png");
   QSplashScreen *splash = new QSplashScreen(pixmap, Qt::WindowStaysOnTopHint);
   splash->show();
   splash->showMessage("Launching...");
 
-  /// Idk why this works, but it fixes the splash
+  // Idk why this works, but it fixes the splash
   for (int i = 0; i < 100000; i++)
     a.processEvents();
 
@@ -29,14 +34,12 @@ int main(int argc, char *argv[]) {
   splash->showMessage("Loading settings...");
   a.processEvents();
   try {
-    settings.load();
-    splash->showMessage("Loaded settings!");
-    a.processEvents();
+      settings.load();
+      splash->showMessage("Loaded settings!");
+      a.processEvents();
   } catch (const std::exception &e) {
-    QMessageBox::warning(nullptr, "GUU - Error",
-                         QString::fromStdString(e.what()));
-    splash->showMessage("Settings reset!");
-    a.processEvents();
+      splash->showMessage("Settings reset!");
+      a.processEvents();
   }
   settings.save();
 

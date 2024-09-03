@@ -77,7 +77,7 @@ void utils::checkForUpdates() {
       QString url = "https://github.com/vancer0/guu-cpp/releases/download/";
       url += QString::number(latestVer);
 #ifdef _WIN32
-      url += "/GUU-Windows-x86_64.exe";
+      url += "/GUU-Windows-Installer-x86_64.exe";
 #elif __linux__
       url += "/GUU-Linux-x86_64.AppImage";
 #elif __APPLE__
@@ -90,11 +90,16 @@ void utils::checkForUpdates() {
 }
 
 #ifdef _WIN32
-std::string utils::autoDetectUTorrentPath() {
-  std::string usual = "C:\\Program Files (x86)\\uTorrent\\uTorrent.exe";
-  if (std::filesystem::exists(usual))
-    return usual;
-  else
-    return "";
+std::string utils::autoDetectUTorrentPath()
+{
+    std::string usual1 = "C:\\Program Files (x86)\\uTorrent\\uTorrent.exe";
+    std::string usual2 = sago::getDataHome() + "\\uTorrent\\uTorrent.exe";
+
+    if (std::filesystem::exists(usual1))
+        return usual1;
+    else if (std::filesystem::exists(usual2))
+        return usual2;
+    else
+        return "";
 }
 #endif
