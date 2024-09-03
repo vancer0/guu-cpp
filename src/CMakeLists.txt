@@ -7,6 +7,11 @@ set(PROJECT_SOURCES
         mainwindow.ui
 )
 
+set(MACOSX_BUNDLE_ICON_FILE icon.icns)
+set(app_icon_macos assets/icon.icns)
+set_source_files_properties(${app_icon_macos} PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources")
+
 qt_add_executable(guu-cpp
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
@@ -24,6 +29,8 @@ qt_add_executable(guu-cpp
     uploadworker.h uploadworker.cpp
     assets/icon.qrc
     assets/splash.qrc
+    assets/guu.ico assets/icon.rc
+    ${app_icon_macos}
 )
 
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Categories=Utility;
+Comment=A helper utility to upload torrents to Gaytor.rent
+Exec=guu-cpp
+Icon=guu
+Name=Gaytor.rent Upload Utility
+StartupNotify=true
+Terminal=false
+Type=Application

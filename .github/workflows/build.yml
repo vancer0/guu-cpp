@@ -11,6 +11,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
 
     - uses: lukka/get-cmake@latest
 
@@ -32,17 +34,26 @@ jobs:
         buildPreset: bld
         buildPresetAdditionalArgs: "['--config Release']"
 
+    - name: Build AppImage
+      run: |
+        sudo apt install libfuse2
+        cd "${{github.workspace}}/deploy"
+        chmod +x linux-appimage.sh
+        ./linux-appimage.sh
+
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: "guu-linux"
-        path: "${{github.workspace}}/build/src/Release"
+        path: "${{github.workspace}}/deploy/out"
 
   build-windows:
     runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
 
     - uses: lukka/get-cmake@latest
 
@@ -66,11 +77,13 @@ jobs:
         buildPresetAdditionalArgs: "['--config Release']"
 
     - name: Run windeployqt
+      run: ${{env.QT_ROOT_DIR}}\bin\windeployqt.exe "${{github.workspace}}\build\src\Release\guu-cpp.exe" --release
+
+    - name: Compile Inno Installer
       run: |
-        mkdir "${{github.workspace}}\out"
-        cp "${{github.workspace}}\build\src\Release\*" "${{github.workspace}}\out"
-        cd ${{github.workspace}}\out
-        ${{github.workspace}}\qt\Qt\6.7.2\msvc2019_64\bin\windeployqt.exe "${{github.workspace}}\out\guu-cpp.exe" --release
+        choco install InnoSetup -y --no-progress --allow-unofficial
+        cd ${{github.workspace}}\deploy
+        iscc '${{github.workspace}}\deploy\windows-inst.iss' /O${{github.workspace}}\out
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
@@ -79,10 +92,12 @@ jobs:
         path: '${{github.workspace}}\out'
 
   build-mac:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
 
     - uses: lukka/get-cmake@latest
 
@@ -93,6 +108,7 @@ jobs:
         host: 'mac'
         target: 'desktop'
         arch: 'clang_64'
+        dir: '${{github.workspace}}/qt/'
     
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
@@ -103,6 +119,12 @@ jobs:
         configurePreset: cfg
         buildPreset: bld
         buildPresetAdditionalArgs: "['--config Release']"
+
+    - name: Build DMG
+      run: |
+        mv ${{github.workspace}}/build/src/Release/guu-cpp.app "${{github.workspace}}/build/src/Release/Gaytor.rent Upload Utility.app"
+        ${{env.QT_ROOT_DIR}}/bin/macdeployqt "${{github.workspace}}/build/src/Release/Gaytor.rent Upload Utility.app" -dmg
+        rm -r ${{github.workspace}}/build/src/Release/*.app
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
