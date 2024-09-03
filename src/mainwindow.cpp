@@ -1,9 +1,10 @@
 #include "mainwindow.h"
+#include <QFileDialog>
+#include <QMessageBox>
 #include "./ui_mainwindow.h"
 #include "nlohmann/json.hpp"
 #include "utils.h"
-#include <QFileDialog>
-#include <QMessageBox>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -26,7 +27,8 @@ MainWindow::~MainWindow() {
 void MainWindow::uiSetup() {
   if (Cfg->autoDl)
     this->loadTorrentClient();
-  SettingsWin.updateBoxes(Cfg);
+  SettingsWin.setData(Client, Cfg);
+  SettingsWin.updateBoxes();
 
   // Menu bar
   connect(ui->actionExit, &QAction::triggered, this, []() { exit(0); });
@@ -147,7 +149,18 @@ void MainWindow::loadCategories() {
 
   auto categories = Api->getCategories();
 
+  int categ = ui->category->currentIndex();
+  int scat1 = ui->subcategory1->currentIndex();
+  int scat2 = ui->subcategory2->currentIndex();
+  int scat3 = ui->subcategory3->currentIndex();
+  int scat4 = ui->subcategory4->currentIndex();
+
   ui->category->clear();
+  ui->subcategory1->clear();
+  ui->subcategory2->clear();
+  ui->subcategory3->clear();
+  ui->subcategory4->clear();
+
   ui->category->addItem("Select Category");
   ui->subcategory1->addItem("(Optional)");
   ui->subcategory2->addItem("(Optional)");
@@ -162,6 +175,12 @@ void MainWindow::loadCategories() {
     ui->subcategory3->addItem(name);
     ui->subcategory4->addItem(name);
   }
+
+  ui->category->setCurrentIndex(std::clamp(categ, 0, ui->category->count()));
+  ui->subcategory1->setCurrentIndex(std::clamp(scat1, 0, ui->subcategory1->count()));
+  ui->subcategory2->setCurrentIndex(std::clamp(scat2, 0, ui->subcategory2->count()));
+  ui->subcategory3->setCurrentIndex(std::clamp(scat3, 0, ui->subcategory3->count()));
+  ui->subcategory4->setCurrentIndex(std::clamp(scat4, 0, ui->subcategory4->count()));
 }
 
 void MainWindow::loadTorrentClient() {
@@ -172,14 +191,19 @@ void MainWindow::loadTorrentClient() {
   if (Cfg->autoDl) {
     if (Cfg->client == "qBitTorrent")
       Client = new qBitTorrent();
+#ifdef _WIN32
+    if (Cfg->client == "uTorrent")
+        Client = new uTorrent();
+#endif
 
     if (Client != nullptr)
-      try {
-        Client->configure(Cfg);
-      } catch (const std::exception &e) {
-        QMessageBox::warning(nullptr, "GUU - Error",
-                             QString::fromStdString(e.what()));
-      }
+        try {
+            Client->configure(Cfg);
+        } catch (const std::exception &e) {
+            QMessageBox::warning(nullptr, "GUU - Error", QString::fromStdString(e.what()));
+        }
+
+    SettingsWin.setData(Client, Cfg);
   }
 }
 

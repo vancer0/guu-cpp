@@ -79,6 +79,8 @@ void UploadWorker::doWork() {
     emit valueChanged(currStage++);
 
     std::string tempPath = utils::tempDirPath() + "/dl.torrent";
+    std::filesystem::remove(tempPath);
+
     if (!Data.api->download(url, tempPath)) {
       emit errorRaised("The uploaded torrent could not be verified.");
       return;
@@ -121,8 +123,6 @@ void UploadWorker::doWork() {
       emit errorRaised("FATAL: Invalid configuration object.");
       return;
     }
-
-    std::filesystem::remove(tempPath);
   } else {
     emit errorRaised("FATAL: Invalid API object.");
     return;

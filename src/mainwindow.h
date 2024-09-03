@@ -31,14 +31,14 @@ public:
   void openAboutWindow() { AboutWin.show(); }
   void openLoginWindow() { LoginWin.show(); }
   void openSettingsWindow() {
-    SettingsWin.applySettings(Cfg);
-    SettingsWin.show();
+      SettingsWin.applySettings();
+      SettingsWin.show();
   }
   void applySettings() {
-    SettingsWin.saveSettings(Cfg);
-    this->loadTorrentClient();
-    this->refreshInfo();
-    SettingsWin.hide();
+      SettingsWin.saveSettings();
+      this->loadTorrentClient();
+      this->refreshInfo();
+      SettingsWin.hide();
   }
 
   void reloadCategories();

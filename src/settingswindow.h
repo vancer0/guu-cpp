@@ -15,28 +15,34 @@ class SettingsWindow : public QWidget {
   Q_OBJECT
 
 public:
-  explicit SettingsWindow(QWidget *parent = nullptr);
-  ~SettingsWindow();
+    explicit SettingsWindow(QWidget *parent = nullptr);
+    ~SettingsWindow();
+    void setData(TorrentClient *client = nullptr, Settings *cfg = nullptr);
 
-  QPushButton *getButton();
+    QPushButton *getButton();
 
-  void enableLoginBox();
-  void enableClientBox();
-  void enableDownloadSetting();
-  void updateBoxes(Settings *settings);
-  void refresh() {
-    this->enableClientBox();
-    this->enableLoginBox();
-    this->enableDownloadSetting();
-  }
+    void enableLoginBox();
+    void enableClientBox();
+    void enableDownloadSetting();
+    void updateBoxes();
+    void updateClientSettings();
+    void refresh()
+    {
+        this->enableClientBox();
+        this->enableLoginBox();
+        this->enableDownloadSetting();
+    }
 
   void selectSavePath();
+  void selectuTorPath();
 
-  void applySettings(Settings *settings);
-  void saveSettings(Settings *settings);
+  void applySettings();
+  void saveSettings();
 
-private:
+  private:
   Ui::SettingsWindow *ui;
+  TorrentClient *Client;
+  Settings *Cfg;
 };
 
 #endif // SETTINGSWINDOW_H

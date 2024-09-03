@@ -68,6 +68,7 @@ bool uTorrent::isConnected() { return std::filesystem::exists(Path); }
 
 bool uTorrent::addTorrent(std::vector<char> torrent, str localPath) {
   str tmpPath = utils::tempDirPath() + "/temp.torrent";
+  std::filesystem::remove(tmpPath);
 
   std::ofstream file(tmpPath, std::ios::out | std::ios::binary);
   if (!file)
@@ -75,10 +76,10 @@ bool uTorrent::addTorrent(std::vector<char> torrent, str localPath) {
 
   copy(torrent.cbegin(), torrent.cend(), std::ostreambuf_iterator<char>(file));
 
-  str command = Path + "/DIRECTORIES \"" + tmpPath + "\" \"" + localPath + "\"";
-  int returnCode = system(command.c_str());
+  str command = "powershell.exe \"& '" + Path + "'\" /DIRECTORY \"" + localPath + "\" \"" + tmpPath
+                + "\"";
 
-  std::filesystem::remove(tmpPath);
+  int returnCode = system(command.c_str());
 
   return returnCode == 0;
 }

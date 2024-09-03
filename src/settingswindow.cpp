@@ -4,22 +4,32 @@
 #include <QFileDialog>
 
 SettingsWindow::SettingsWindow(QWidget *parent)
-    : QWidget(parent), ui(new Ui::SettingsWindow) {
-  ui->setupUi(this);
-  this->resize(1, 1);
-  this->setMaximumSize(this->size());
+    : QWidget(parent)
+    , ui(new Ui::SettingsWindow)
+{
+    ui->setupUi(this);
+    ui->qBitSettings->hide();
+    ui->uTorrSettings->hide();
+    this->resize(1, 1);
+    this->setMaximumSize(this->size());
 
-  connect(ui->autoLogin, &QCheckBox::stateChanged, this,
-          &SettingsWindow::enableLoginBox);
-  connect(ui->autoDl, &QCheckBox::stateChanged, this,
-          &SettingsWindow::enableClientBox);
-  connect(ui->saveUploads, &QCheckBox::stateChanged, this,
-          &SettingsWindow::enableDownloadSetting);
-  connect(ui->savePathBrowse, &QPushButton::pressed, this,
-          &SettingsWindow::selectSavePath);
+    connect(ui->autoLogin, &QCheckBox::stateChanged, this, &SettingsWindow::enableLoginBox);
+    connect(ui->autoDl, &QCheckBox::stateChanged, this, &SettingsWindow::enableClientBox);
+    connect(ui->saveUploads, &QCheckBox::stateChanged, this, &SettingsWindow::enableDownloadSetting);
+    connect(ui->savePathBrowse, &QPushButton::pressed, this, &SettingsWindow::selectSavePath);
+    connect(ui->torrentClient,
+            &QComboBox::currentIndexChanged,
+            this,
+            &SettingsWindow::updateClientSettings);
 }
 
 SettingsWindow::~SettingsWindow() { delete ui; }
+
+void SettingsWindow::setData(TorrentClient *client, Settings *cfg)
+{
+    Client = client;
+    Cfg = cfg;
+}
 
 QPushButton *SettingsWindow::getButton() { return ui->saveSetBtn; }
 
@@ -32,10 +42,10 @@ void SettingsWindow::enableLoginBox() {
 void SettingsWindow::enableClientBox() {
   bool enable = ui->autoDl->isChecked();
   ui->torrentClient->setEnabled(enable);
-  ui->webuiHost->setEnabled(enable);
-  ui->webuiPort->setEnabled(enable);
-  ui->webuiUser->setEnabled(enable);
-  ui->webuiPwd->setEnabled(enable);
+  ui->qTorHost->setEnabled(enable);
+  ui->qTorPort->setEnabled(enable);
+  ui->qTorUser->setEnabled(enable);
+  ui->qTorPass->setEnabled(enable);
 }
 
 void SettingsWindow::enableDownloadSetting() {
@@ -44,10 +54,34 @@ void SettingsWindow::enableDownloadSetting() {
   ui->savePathBrowse->setEnabled(enable);
 }
 
-void SettingsWindow::updateBoxes(Settings *settings) {
-  if (settings != nullptr)
-    for (auto i : settings->Clients)
-      ui->torrentClient->addItem(QString::fromStdString(i));
+void SettingsWindow::updateClientSettings()
+{
+    if (Cfg == nullptr || Client == nullptr) {
+        return;
+    }
+
+    std::string name = Cfg->Clients[ui->torrentClient->currentIndex()];
+
+    if (name == "qBitTorrent") {
+        ui->qBitSettings->show();
+        ui->uTorrSettings->hide();
+    }
+
+#ifdef _WIN32
+    if (name == "uTorrent") {
+        ui->qBitSettings->hide();
+        ui->uTorrSettings->show();
+    }
+#endif
+
+    this->adjustSize();
+}
+
+void SettingsWindow::updateBoxes()
+{
+    if (Cfg != nullptr)
+        for (auto i : Cfg->Clients)
+            ui->torrentClient->addItem(QString::fromStdString(i));
 }
 
 void SettingsWindow::selectSavePath() {
@@ -56,51 +90,69 @@ void SettingsWindow::selectSavePath() {
   ui->savePath->setText(path);
 }
 
-void SettingsWindow::applySettings(Settings *settings) {
-  if (settings != nullptr) {
-    {
-      auto it = std::find(settings->Clients.begin(), settings->Clients.end(),
-                          settings->client);
-      if (it != settings->Clients.end()) {
-        int index = it - settings->Clients.begin();
-        ui->torrentClient->setCurrentIndex(index);
-      }
-    }
-
-    ui->checkUpdates->setChecked(settings->updateCheck);
-    ui->autoLogin->setChecked(settings->saveLogin);
-    ui->gtUsername->setText(QString::fromStdString(settings->gtUsername));
-    ui->gtPassword->setText(QString::fromStdString(settings->gtPassword));
-    ui->autoDl->setChecked(settings->autoDl);
-    ui->webuiHost->setText(QString::fromStdString(settings->qBitHost));
-    ui->webuiPort->setText(QString::fromStdString(settings->qBitPort));
-    ui->webuiUser->setText(QString::fromStdString(settings->qBitUsername));
-    ui->webuiPwd->setText(QString::fromStdString(settings->qBitPassword));
-    ui->saveUploads->setChecked(settings->saveUploads);
-    ui->savePath->setText(QString::fromStdString(settings->savePath));
-
-    this->refresh();
-  }
+void SettingsWindow::selectuTorPath()
+{
+    auto path = QFileDialog::getOpenFileName(this,
+                                             tr("Select uTorrent Path"),
+                                             tr("Executables (*.exe)"));
+    ui->uTorPath->clear();
+    ui->uTorPath->setText(path);
 }
 
-void SettingsWindow::saveSettings(Settings *settings) {
-  if (settings != nullptr) {
-    settings->updateCheck = ui->checkUpdates->isChecked();
-    settings->saveLogin = ui->autoLogin->isChecked();
-    settings->gtUsername = ui->gtUsername->text().toStdString();
-    settings->gtPassword = ui->gtPassword->text().toStdString();
-    settings->autoDl = ui->autoDl->isChecked();
-    settings->qBitHost = ui->webuiHost->text().toStdString();
-    settings->qBitPort = ui->webuiPort->text().toStdString();
-    settings->qBitUsername = ui->webuiUser->text().toStdString();
-    settings->qBitPassword = ui->webuiPwd->text().toStdString();
-    settings->saveUploads = ui->saveUploads->isChecked();
-    settings->savePath = ui->savePath->text().toStdString();
+void SettingsWindow::applySettings()
+{
+    if (Cfg != nullptr) {
+        {
+            auto it = std::find(Cfg->Clients.begin(), Cfg->Clients.end(), Cfg->client);
+            if (it != Cfg->Clients.end()) {
+                int index = it - Cfg->Clients.begin();
+                ui->torrentClient->setCurrentIndex(index);
+            }
+        }
 
-    settings->client = settings->Clients[ui->torrentClient->currentIndex()];
+        ui->checkUpdates->setChecked(Cfg->updateCheck);
+        ui->autoLogin->setChecked(Cfg->saveLogin);
+        ui->gtUsername->setText(QString::fromStdString(Cfg->gtUsername));
+        ui->gtPassword->setText(QString::fromStdString(Cfg->gtPassword));
+        ui->autoDl->setChecked(Cfg->autoDl);
+        ui->qTorHost->setText(QString::fromStdString(Cfg->qBitHost));
+        ui->qTorPort->setText(QString::fromStdString(Cfg->qBitPort));
+        ui->qTorUser->setText(QString::fromStdString(Cfg->qBitUsername));
+        ui->qTorPass->setText(QString::fromStdString(Cfg->qBitPassword));
+        ui->saveUploads->setChecked(Cfg->saveUploads);
+        ui->savePath->setText(QString::fromStdString(Cfg->savePath));
+#ifdef _WIN32
+        ui->uTorPath
+            ->setText(QString::fromStdString(Cfg->uTorrentPath));
+#endif
 
-    settings->save();
+        this->refresh();
+    }
+}
 
-    this->hide();
-  }
+void SettingsWindow::saveSettings()
+{
+    if (Cfg != nullptr) {
+        Cfg->updateCheck = ui->checkUpdates->isChecked();
+        Cfg->saveLogin = ui->autoLogin->isChecked();
+        Cfg->gtUsername = ui->gtUsername->text().toStdString();
+        Cfg->gtPassword = ui->gtPassword->text().toStdString();
+        Cfg->autoDl = ui->autoDl->isChecked();
+        Cfg->qBitHost = ui->qTorHost->text().toStdString();
+        Cfg->qBitPort = ui->qTorPort->text().toStdString();
+        Cfg->qBitUsername = ui->qTorUser->text().toStdString();
+        Cfg->qBitPassword = ui->qTorPass->text().toStdString();
+        Cfg->saveUploads = ui->saveUploads->isChecked();
+        Cfg->savePath = ui->savePath->text().toStdString();
+
+        Cfg->client = Cfg->Clients[ui->torrentClient->currentIndex()];
+
+#ifdef _WIN32
+        Cfg->uTorrentPath = ui->uTorPath->text().toStdString();
+#endif
+
+        Cfg->save();
+
+        this->hide();
+    }
 }
