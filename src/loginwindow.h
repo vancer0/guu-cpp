@@ -4,6 +4,8 @@
 #include <QPushButton>
 #include <QWidget>
 
+#include "api.h"
+#include "settings.h"
 #include <string>
 
 namespace Ui {
@@ -15,14 +17,18 @@ class LoginWindow : public QWidget {
 
 public:
   explicit LoginWindow(QWidget *parent = nullptr);
-  QPushButton *getButton();
-  std::string getUsername();
-  std::string getPassword();
-  bool shouldSave();
+  void setData(API *api, Settings *cfg);
+
+  void login();
   ~LoginWindow();
 
 private:
   Ui::LoginWindow *ui;
+  API *Api = nullptr;
+  Settings *Cfg = nullptr;
+
+  signals:
+  void loggedIn();
 };
 
 #endif // LOGINWINDOW_H

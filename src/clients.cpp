@@ -10,24 +10,27 @@
 #endif
 
 void qBitTorrent::configure(Settings *settings) {
-  if (settings != nullptr) {
-    webUiUrl = settings->qBitHost + ":" + settings->qBitPort;
+    if (settings == nullptr) {
+        throw std::runtime_error("Client: Invalid settings object");
+    }
 
-    if (webUiUrl.rfind("http", 0) != 0)
+  webUiUrl = settings->qBitHost;
+
+  if (settings->qBitPort != "80")
+      webUiUrl += ":" + settings->qBitPort;
+
+  if (webUiUrl.rfind("http", 0) != 0)
       webUiUrl = "http://" + webUiUrl;
 
-    auto r = cpr::Post(cpr::Url{webUiUrl + "/api/v2/auth/login"},
-                       cpr::Multipart{{"username", settings->qBitUsername},
-                                      {"password", settings->qBitPassword}},
-                       cpr::Timeout{CLIENT_TIMEOUT});
-    if (r.status_code == 0)
+  auto r = cpr::Post(cpr::Url{webUiUrl + "/api/v2/auth/login"},
+                     cpr::Multipart{{"username", settings->qBitUsername},
+                                    {"password", settings->qBitPassword}},
+                     cpr::Timeout{CLIENT_TIMEOUT});
+  if (r.status_code == 0)
       throw std::runtime_error("Client: Could not connect to qBitTorrent");
 
-    if (r.text == "Ok.")
+  if (r.text == "Ok.")
       header = cpr::Header{{"Cookie", "SID=" + r.cookies[0].GetValue()}};
-  } else {
-    throw std::runtime_error("Client: Invalid object");
-  }
 }
 
 bool qBitTorrent::isConnected() {
@@ -58,10 +61,14 @@ qBitTorrent::~qBitTorrent() {
 
 #ifdef _WIN32
 void uTorrent::configure(Settings *settings) {
-  if (settings != nullptr) {
+    if (settings == nullptr) {
+        throw std::runtime_error("Client: Invalid settings object");
+    }
+
     if (std::filesystem::exists(settings->uTorrentPath))
-      Path = settings->uTorrentPath;
-  }
+        Path = settings->uTorrentPath;
+    else
+        throw std::runtime_error("Client: Could not find specified file");
 }
 
 bool uTorrent::isConnected() { return std::filesystem::exists(Path); }

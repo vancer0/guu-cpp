@@ -67,65 +67,63 @@ void UploadWorker::doWork() {
   uplData.sCateg3 = Data.sCateg3;
   uplData.sCateg4 = Data.sCateg4;
 
-  if (Data.api != nullptr) {
-    std::string url = Data.api->upload(uplData);
+  if (Data.api == nullptr) {
+      emit errorRaised("FATAL: Invalid API object.");
+      return;
+  }
 
-    if (Data.api->getLastError().code != cpr::ErrorCode::OK) {
+  std::string url = Data.api->upload(uplData);
+
+  if (Data.api->getLastError().code != cpr::ErrorCode::OK) {
       emit errorRaised("An error occured while uploading the torrent.");
       return;
-    }
+  }
 
-    emit textChanged("Verifying torrent...");
-    emit valueChanged(currStage++);
+  emit textChanged("Verifying torrent...");
+  emit valueChanged(currStage++);
 
-    std::string tempPath = utils::tempDirPath() + "/dl.torrent";
-    std::filesystem::remove(tempPath);
+  std::string tempPath = utils::tempDirPath() + "/dl.torrent";
+  std::filesystem::remove(tempPath);
 
-    if (!Data.api->download(url, tempPath)) {
+  if (!Data.api->download(url, tempPath)) {
       emit errorRaised("The uploaded torrent could not be verified.");
       return;
-    }
+  }
 
-    if (Cfg != nullptr) {
-      if (Cfg->saveUploads) {
-        emit textChanged("Saving torrent...");
-        emit valueChanged(currStage++);
+  if (Cfg == nullptr) {
+      emit errorRaised("FATAL: Invalid configuration object.");
+      return;
+  }
+  if (Cfg->saveUploads) {
+      emit textChanged("Saving torrent...");
+      emit valueChanged(currStage++);
 
-        std::string saveTo = Cfg->savePath + "/" + Data.title + ".torrent";
+      std::string saveTo = Cfg->savePath + "/" + Data.title + ".torrent";
 
-        try {
+      try {
           std::filesystem::copy(tempPath, saveTo);
-        } catch (...) {
+      } catch (...) {
           emit errorRaised("An error occured while saving the torrent.");
           return;
-        }
       }
+  }
 
-      if (Cfg->autoDl) {
-        emit textChanged("Sending torrent to client...");
-        emit valueChanged(currStage++);
+  if (Cfg->autoDl) {
+      emit textChanged("Sending torrent to client...");
+      emit valueChanged(currStage++);
 
-        if (Client != nullptr) {
+      if (Client != nullptr) {
           std::basic_ifstream<char> file(tempPath, std::ios::binary);
           std::vector<char> torBytes((std::istreambuf_iterator<char>(file)),
                                      std::istreambuf_iterator<char>());
-          if (!Client->addTorrent(torBytes, Data.path)) {
-            emit errorRaised(
-                "An error occured while sending the torrent to client.");
-            return;
+          if (!Client->addTorrent(torBytes, parentDir)) {
+              emit errorRaised("An error occured while sending the torrent to client.");
+              return;
           }
-        } else {
+      } else {
           emit errorRaised("FATAL: Invalid client object.");
           return;
-        }
       }
-    } else {
-      emit errorRaised("FATAL: Invalid configuration object.");
-      return;
-    }
-  } else {
-    emit errorRaised("FATAL: Invalid API object.");
-    return;
   }
 
   emit finished();

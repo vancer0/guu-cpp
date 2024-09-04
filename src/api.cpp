@@ -39,20 +39,11 @@ bool API::login(str username, str password) {
 }
 
 bool API::isLoggedIn() {
-  bool success1 = false;
-  for (cpr::Cookie cookie : Cookies) {
-    if (cookie.GetName() == "token") {
-      success1 = true;
-      break;
-    }
-  }
+    auto r = cpr::Get(cpr::Url{Url + "/qtm.php"}, Cookies, cpr::Timeout{TIMEOUT});
 
-  auto r = cpr::Get(cpr::Url{Url + "/qtm.php"}, Cookies, cpr::Timeout{TIMEOUT});
-  bool success2 = r.status_code == 200;
+    LastError = r.error;
 
-  LastError = r.error;
-
-  return success1 && success2;
+    return r.status_code == 200;
 }
 
 bool API::logout() {

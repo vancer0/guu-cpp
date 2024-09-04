@@ -31,6 +31,7 @@ qt_add_executable(guu-cpp
     assets/splash.qrc
     assets/guu.ico assets/icon.rc
     ${app_icon_macos}
+    picturemanager.h picturemanager.cpp picturemanager.ui
 )
 
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})

@@ -1,5 +1,5 @@
 #define MyAppName "Gaytor.rent Upload Utility"
-#define MyAppVersion "10"
+#define MyAppVersion "11"
 #define MyAppPublisher "vancer"
 #define MyAppURL "https://github.com/vancer0/guu-cpp"
 #define MyAppExeName "guu-cpp.exe"

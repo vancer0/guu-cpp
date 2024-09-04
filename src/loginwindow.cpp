@@ -1,32 +1,50 @@
 #include "loginwindow.h"
 #include "ui_loginwindow.h"
 
+#include <QMessageBox>
+
 LoginWindow::LoginWindow(QWidget *parent)
     : QWidget(parent), ui(new Ui::LoginWindow) {
   ui->setupUi(this);
   this->resize(1, 1);
   this->setMaximumSize(this->size());
   ui->loginBtn->setShortcut(tr("Return"));
+  connect(ui->loginBtn, &QPushButton::pressed, this, &LoginWindow::login);
 }
 
-QPushButton *LoginWindow::getButton() { return ui->loginBtn; }
-
-std::string LoginWindow::getUsername() {
-  std::string s = ui->username->text().toStdString();
-  ui->username->clear();
-  return s;
+void LoginWindow::setData(API *api, Settings *cfg)
+{
+    Api = api;
+    Cfg = cfg;
 }
 
-std::string LoginWindow::getPassword() {
-  std::string s = ui->password->text().toStdString();
-  ui->password->clear();
-  return s;
-}
+void LoginWindow::login()
+{
+    if (Api == nullptr || Cfg == nullptr)
+        return;
 
-bool LoginWindow::shouldSave() {
-  bool s = ui->credSave->isChecked();
-  ui->credSave->setChecked(false);
-  return s;
+    std::string username = ui->username->text().toStdString();
+    std::string password = ui->password->text().toStdString();
+    ui->password->clear();
+
+    if (username.empty() || password.empty())
+        return;
+
+    if (Api->login(username, password)) {
+        this->hide();
+        ui->username->clear();
+        if (ui->credSave->isChecked()) {
+            Cfg->saveLogin = true;
+            Cfg->gtUsername = username;
+            Cfg->gtPassword = password;
+            Cfg->save();
+        }
+        emit loggedIn();
+    } else {
+        QMessageBox::warning(this,
+                             "GUU - Error",
+                             "Could not login. Please check your credentials and try again.");
+    }
 }
 
 LoginWindow::~LoginWindow() { delete ui; }

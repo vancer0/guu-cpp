@@ -10,6 +10,7 @@
 #include "clients.h"
 #include "loginwindow.h"
 #include "picturelist.h"
+#include "picturemanager.h"
 #include "settings.h"
 #include "settingswindow.h"
 #include "uploadworker.h"
@@ -30,6 +31,7 @@ public:
 
   void openAboutWindow() { AboutWin.show(); }
   void openLoginWindow() { LoginWin.show(); }
+  void openPicMgr() { PicMgr.show(); }
   void openSettingsWindow() {
       SettingsWin.updateClientSettings();
       SettingsWin.applySettings();
@@ -49,13 +51,14 @@ public:
 
   void loadTorrentClient();
 
-  void login();
   void logout();
   void updateStatus();
   void refreshInfo() {
     this->loadCategories();
     this->updateStatus();
   }
+
+  void updatePictures();
 
   void selectFile();
   void selectFolder();
@@ -82,6 +85,7 @@ private:
   AboutWindow AboutWin;
   LoginWindow LoginWin;
   SettingsWindow SettingsWin;
+  PictureManager PicMgr;
 
   TorrentClient *Client = nullptr;
 

@@ -29,6 +29,8 @@ void MainWindow::uiSetup() {
         this->loadTorrentClient();
     SettingsWin.setData(Client, Cfg);
     SettingsWin.updateBoxes();
+    SettingsWin.updateClientSettings();
+    LoginWin.setData(Api, Cfg);
 
     // Menu bar
     connect(ui->actionExit, &QAction::triggered, this, []() { exit(0); });
@@ -54,14 +56,14 @@ void MainWindow::uiSetup() {
     connect(ui->subcategory4, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
 
     // Picture table
-    connect(ui->addPicBtn, &QPushButton::pressed, this, &MainWindow::selectPictures);
-    connect(ui->rmPicBtn, &QPushButton::pressed, this, &MainWindow::removePictures);
+    connect(ui->managePics, &QPushButton::pressed, this, &MainWindow::openPicMgr);
+    connect(&PicMgr, &PictureManager::modified, this, &MainWindow::updatePictures);
 
     // Info
     connect(ui->uploadBtn, &QPushButton::pressed, this, &MainWindow::uploadChecks);
 
     // Login window
-    connect(LoginWin.getButton(), &QPushButton::clicked, this, &MainWindow::login);
+    connect(&LoginWin, &LoginWindow::loggedIn, this, &MainWindow::refreshInfo);
 
     // Settings window
     connect(SettingsWin.getButton(), &QPushButton::clicked, this, &MainWindow::applySettings);
@@ -79,8 +81,7 @@ void MainWindow::enableItemsAll(bool enable) {
   ui->subcategory2->setEnabled(enable);
   ui->subcategory3->setEnabled(enable);
   ui->subcategory4->setEnabled(enable);
-  ui->addPicBtn->setEnabled(enable);
-  ui->rmPicBtn->setEnabled(enable);
+  ui->managePics->setEnabled(enable);
   ui->title->setEnabled(enable);
   ui->description->setEnabled(enable);
   ui->uploadBtn->setEnabled(enable);
@@ -105,8 +106,7 @@ void MainWindow::enableItemsAuto() {
                                ui->subcategory2->isEnabled() &&
                                ui->subcategory3->isEnabled());
 
-  ui->addPicBtn->setEnabled(enable);
-  ui->rmPicBtn->setEnabled(enable);
+  ui->managePics->setEnabled(enable);
   ui->title->setEnabled(enable);
   ui->description->setEnabled(enable);
   ui->uploadBtn->setEnabled(enable);
@@ -172,8 +172,8 @@ void MainWindow::loadTorrentClient() {
   Client = nullptr;
 
   if (Cfg->autoDl) {
-    if (Cfg->client == "qBitTorrent")
-      Client = new qBitTorrent();
+      if (Cfg->client == "qBitTorrent")
+          Client = new qBitTorrent();
 #ifdef _WIN32
     if (Cfg->client == "uTorrent")
         Client = new uTorrent();
@@ -188,31 +188,6 @@ void MainWindow::loadTorrentClient() {
     SettingsWin.setData(Client, Cfg);
   }
 }
-
-void MainWindow::login() {
-  LoginWin.hide();
-
-  std::string username = LoginWin.getUsername();
-  std::string password = LoginWin.getPassword();
-  bool shouldSave = LoginWin.shouldSave();
-  Api->login(username, password);
-  if (Api->isLoggedIn()) {
-    if (shouldSave) {
-      Cfg->saveLogin = true;
-      Cfg->gtUsername = username;
-      Cfg->gtPassword = password;
-      Cfg->save();
-    }
-  } else {
-    QMessageBox::warning(
-        this, "GUU - Error",
-        "Could not login. Please check your credentials and try again.");
-  }
-
-  this->refreshInfo();
-  this->enableItemsAll(true);
-}
-
 void MainWindow::logout() {
   this->enableItemsAll(false);
   Api->logout();
@@ -251,6 +226,18 @@ void MainWindow::updateStatus() {
   }
 }
 
+void MainWindow::updatePictures()
+{
+    ui->picTable->clear();
+    auto items = PicMgr.getList();
+    for (auto i : items) {
+        QListWidgetItem *item = new QListWidgetItem();
+        item->setIcon(i->icon());
+        item->setData(Qt::UserRole, i->data(Qt::UserRole).toString());
+        ui->picTable->addItem(item);
+    }
+}
+
 void MainWindow::selectFile() {
   auto path = QFileDialog::getOpenFileName(this, tr("Open File"), "",
                                            tr("All Files (*.*)"));
@@ -264,22 +251,6 @@ void MainWindow::selectFolder() {
 
   ui->path->clear();
   ui->path->insert(path);
-}
-
-void MainWindow::selectPictures() {
-  auto paths = QFileDialog::getOpenFileNames(
-      this, tr("Open File"), "",
-      tr("Images (*.png *.jpg *.jpeg *.bmp *.tif *.psd)"));
-
-  for (auto pic : paths) {
-    ui->picTable->addPicture(pic);
-  }
-}
-
-void MainWindow::removePictures() {
-  auto items = ui->picTable->selectedItems();
-  for (auto item : items)
-    delete ui->picTable->takeItem(ui->picTable->row(item));
 }
 
 void MainWindow::clearAllFields() {
@@ -337,7 +308,8 @@ void MainWindow::openProject() {
     std::vector<std::string> pics = proj["Pictures"]["Path(s)"];
 
     for (auto pic : pics)
-      ui->picTable->addPicture(QString::fromStdString(pic));
+        PicMgr.addPicture(QString::fromStdString(pic));
+    this->updatePictures();
   } catch (...) {
     QMessageBox::warning(this, "GUU - Error",
                          "Error loading project. Error loading project.");
@@ -370,7 +342,7 @@ void MainWindow::saveProject() {
   std::string path = ui->path->text().toStdString();
   std::vector<std::string> pics;
   for (int i = 0; i < ui->picTable->count(); i++)
-    pics.push_back(ui->picTable->item(i)->text().toStdString());
+      pics.push_back(ui->picTable->item(i)->data(Qt::UserRole).toString().toStdString());
 
   if (lastProjectPath.length() == 0)
     return;
@@ -452,7 +424,8 @@ void MainWindow::uploadChecks() {
     provideInfo += "\n- Description";
     needInfo = true;
   }
-  ui->picTable->removeInvalid();
+  PicMgr.removeInvalid();
+  this->updatePictures();
   if (ui->picTable->count() == 0) {
     provideInfo += "\n- At least 1 picture";
     needInfo = true;
@@ -484,6 +457,7 @@ void MainWindow::beginUpload() {
   connect(worker, SIGNAL(workRequested()), thread, SLOT(start()));
   connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
   connect(worker, &UploadWorker::finished, thread, &QThread::quit);
+  connect(worker, &UploadWorker::errorRaised, thread, &QThread::quit);
   connect(thread, &QThread::finished, this, &MainWindow::finishUpload);
 
   UploadWorker::WorkerInputData data;
@@ -492,10 +466,10 @@ void MainWindow::beginUpload() {
   data.title = ui->title->text().toStdString();
   data.description = ui->description->toPlainText().toStdString();
   data.images = {};
-  for (int i = 0; i < ui->picTable->count(); i++) {
-    std::string pth = ui->picTable->item(i)->text().toStdString();
-    if (std::filesystem::exists(pth))
-      data.images.push_back(pth);
+  for (int i = ui->picTable->count() - 1; i >= 0; i -= 1) {
+      std::string pth = ui->picTable->item(i)->data(Qt::UserRole).toString().toStdString();
+      if (std::filesystem::exists(pth))
+          data.images.push_back(pth);
   }
 
   auto categs = Api->getCategories();
@@ -516,14 +490,12 @@ void MainWindow::beginUpload() {
 }
 
 void MainWindow::showUploadError(const QString &text) {
-  QMessageBox::warning(this, "GUU - Error", text);
+    QMessageBox::warning(this, "GUU - Error", text);
 
-  thread->wait();
-
-  this->enableItemsAll(true);
-  ui->uploadStatus->setMaximum(1);
-  ui->uploadStatus->setValue(0);
-  ui->uploadStatus->setFormat("Waiting...");
+    this->enableItemsAll(true);
+    ui->uploadStatus->setMaximum(1);
+    ui->uploadStatus->setValue(0);
+    ui->uploadStatus->setFormat("Waiting...");
 }
 
 void MainWindow::finishUpload() {

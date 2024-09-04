@@ -8,6 +8,13 @@ SettingsWindow::SettingsWindow(QWidget *parent)
     , ui(new Ui::SettingsWindow)
 {
     ui->setupUi(this);
+    ui->qBitSettings->setVisible(false);
+    ui->uTorrSettings->setVisible(false);
+    ui->qBitSettings->hide();
+    ui->uTorrSettings->hide();
+
+    this->resize(1, 1);
+    this->setMaximumSize(this->size());
 
     connect(ui->autoLogin, &QCheckBox::stateChanged, this, &SettingsWindow::enableLoginBox);
     connect(ui->autoDl, &QCheckBox::stateChanged, this, &SettingsWindow::enableClientBox);
