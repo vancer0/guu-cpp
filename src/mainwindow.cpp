@@ -67,6 +67,7 @@ void MainWindow::uiSetup() {
     connect(SettingsWin.getButton(), &QPushButton::clicked, this, &MainWindow::applySettings);
 
     this->refreshInfo();
+    this->resize(1, 1);
 }
 
 void MainWindow::enableItemsAll(bool enable) {
@@ -181,8 +182,7 @@ void MainWindow::loadTorrentClient() {
     if (Client != nullptr)
         try {
             Client->configure(Cfg);
-        } catch (const std::exception &e) {
-            QMessageBox::warning(nullptr, "GUU - Error", QString::fromStdString(e.what()));
+        } catch (...) {
         }
 
     SettingsWin.setData(Client, Cfg);
