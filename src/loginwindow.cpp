@@ -12,39 +12,37 @@ LoginWindow::LoginWindow(QWidget *parent)
   connect(ui->loginBtn, &QPushButton::pressed, this, &LoginWindow::login);
 }
 
-void LoginWindow::setData(API *api, Settings *cfg)
-{
-    Api = api;
-    Cfg = cfg;
+void LoginWindow::setData(API *api, Settings *cfg) {
+  Api = api;
+  Cfg = cfg;
 }
 
-void LoginWindow::login()
-{
-    if (Api == nullptr || Cfg == nullptr)
-        return;
+void LoginWindow::login() {
+  if (Api == nullptr || Cfg == nullptr)
+    return;
 
-    std::string username = ui->username->text().toStdString();
-    std::string password = ui->password->text().toStdString();
-    ui->password->clear();
+  std::string username = ui->username->text().toStdString();
+  std::string password = ui->password->text().toStdString();
+  ui->password->clear();
 
-    if (username.empty() || password.empty())
-        return;
+  if (username.empty() || password.empty())
+    return;
 
-    if (Api->login(username, password)) {
-        this->hide();
-        ui->username->clear();
-        if (ui->credSave->isChecked()) {
-            Cfg->saveLogin = true;
-            Cfg->gtUsername = username;
-            Cfg->gtPassword = password;
-            Cfg->save();
-        }
-        emit loggedIn();
-    } else {
-        QMessageBox::warning(this,
-                             "GUU - Error",
-                             "Could not login. Please check your credentials and try again.");
+  if (Api->login(username, password)) {
+    this->hide();
+    ui->username->clear();
+    if (ui->credSave->isChecked()) {
+      Cfg->saveLogin = true;
+      Cfg->gtUsername = username;
+      Cfg->gtPassword = password;
+      Cfg->save();
     }
+    emit loggedIn();
+  } else {
+    QMessageBox::warning(
+        this, "GUU - Error",
+        "Could not login. Please check your credentials and try again.");
+  }
 }
 
 LoginWindow::~LoginWindow() { delete ui; }

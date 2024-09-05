@@ -8,25 +8,24 @@ namespace Ui {
 class PictureManager;
 }
 
-class PictureManager : public QWidget
-{
-    Q_OBJECT
+class PictureManager : public QWidget {
+  Q_OBJECT
 
 public:
-    explicit PictureManager(QWidget *parent = nullptr);
-    QList<QListWidgetItem *> getList();
-    void addPicture(QString path);
-    void removeInvalid();
+  explicit PictureManager(QWidget *parent = nullptr);
+  QList<QListWidgetItem *> getList();
+  void addPicture(QString path);
+  void removeInvalid();
 
-    void selectPictures();
-    void removePictures();
-    ~PictureManager();
+  void selectPictures();
+  void removePictures();
+  ~PictureManager();
 
 private:
-    Ui::PictureManager *ui;
+  Ui::PictureManager *ui;
 
 signals:
-    void modified();
+  void modified();
 };
 
 #endif // PICTUREMANAGER_H

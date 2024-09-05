@@ -39,11 +39,11 @@ bool API::login(str username, str password) {
 }
 
 bool API::isLoggedIn() {
-    auto r = cpr::Get(cpr::Url{Url + "/qtm.php"}, Cookies, cpr::Timeout{TIMEOUT});
+  auto r = cpr::Get(cpr::Url{Url + "/qtm.php"}, Cookies, cpr::Timeout{TIMEOUT});
 
-    LastError = r.error;
+  LastError = r.error;
 
-    return r.status_code == 200;
+  return r.status_code == 200;
 }
 
 bool API::logout() {
@@ -104,30 +104,31 @@ bool API::clearUploadPictures() {
 }
 
 str API::upload(UploadData data) {
-    this->clearUploadPictures();
+  this->clearUploadPictures();
 
-    cpr::Multipart uplData{};
+  cpr::Multipart uplData{};
 
-    uplData.parts.push_back({"MAX_FILE_SIZE", 40000000});
-    uplData.parts.push_back({"type", data.mainCateg});
-    uplData.parts.push_back({"scat1", data.sCateg1});
-    uplData.parts.push_back({"scat2", data.sCateg2});
-    uplData.parts.push_back({"scat3", data.sCateg3});
-    uplData.parts.push_back({"scat4", data.sCateg4});
-    uplData.parts.push_back({"name", data.title});
-    uplData.parts.push_back({"infourl", ""});
-    uplData.parts.push_back({"descr", data.description});
-    uplData.parts.push_back({"checktorrent", "Do it!"});
-    uplData.parts.push_back(
-        {"file", cpr::Buffer{data.torrent.begin(), data.torrent.end(), "upl.torrent"}});
-    for (str pic : data.picPaths)
-        uplData.parts.push_back({"ulpic[]", cpr::File{pic}});
+  uplData.parts.push_back({"MAX_FILE_SIZE", 40000000});
+  uplData.parts.push_back({"type", data.mainCateg});
+  uplData.parts.push_back({"scat1", data.sCateg1});
+  uplData.parts.push_back({"scat2", data.sCateg2});
+  uplData.parts.push_back({"scat3", data.sCateg3});
+  uplData.parts.push_back({"scat4", data.sCateg4});
+  uplData.parts.push_back({"name", data.title});
+  uplData.parts.push_back({"infourl", ""});
+  uplData.parts.push_back({"descr", data.description});
+  uplData.parts.push_back({"checktorrent", "Do it!"});
+  uplData.parts.push_back(
+      {"file",
+       cpr::Buffer{data.torrent.begin(), data.torrent.end(), "upl.torrent"}});
+  for (str pic : data.picPaths)
+    uplData.parts.push_back({"ulpic[]", cpr::File{pic}});
 
-    auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies, uplData);
+  auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies, uplData);
 
-    LastError = r.error;
+  LastError = r.error;
 
-    return r.url.str();
+  return r.url.str();
 }
 
 bool API::download(str url, str path) {

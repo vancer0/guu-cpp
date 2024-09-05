@@ -7,9 +7,8 @@
 #include <QMimeData>
 #include <string>
 
-class PictureList : public QListWidget
-{
-    Q_OBJECT
+class PictureList : public QListWidget {
+  Q_OBJECT
 public:
   PictureList(QWidget *parent);
   void addPicture(QString path);
@@ -18,11 +17,19 @@ public:
   void moveDown();
   void moveUp();
 
-  protected:
-  void dropEvent(QDropEvent *event);
+  void allowDrops(bool allow);
+
+protected:
   void dragEnterEvent(QDragEnterEvent *event);
+  void dragMoveEvent(QDragMoveEvent *event);
+  void dragLeaveEvent(QDragLeaveEvent *event);
+  void dropEvent(QDropEvent *event);
+  void paintEvent(QPaintEvent *e);
 signals:
   void itemDroped();
+
+private:
+  bool _allowDrops = true;
 };
 
 #endif // PICTURELIST_H

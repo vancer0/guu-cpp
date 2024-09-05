@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
   qApp->setPalette(p);
 
   QPixmap pixmap(":/splash.png");
-  QSplashScreen *splash = new QSplashScreen(pixmap, Qt::WindowStaysOnTopHint);
+  QSplashScreen *splash = new QSplashScreen(pixmap);
   splash->show();
   splash->showMessage("Launching...");
 
@@ -34,19 +34,19 @@ int main(int argc, char *argv[]) {
   splash->showMessage("Loading settings...");
   a.processEvents();
   try {
-      settings.load();
-      splash->showMessage("Loaded settings!");
-      a.processEvents();
+    settings.load();
+    splash->showMessage("Loaded settings!");
+    a.processEvents();
   } catch (const std::exception &e) {
-      splash->showMessage("Settings reset!");
-      a.processEvents();
+    splash->showMessage("Settings reset!");
+    a.processEvents();
   }
   settings.save();
 
   if (settings.updateCheck) {
     splash->showMessage("Checking for updates...");
     a.processEvents();
-    utils::checkForUpdates();
+    utils::checkForUpdates(false);
   }
 
   if (settings.saveLogin) {

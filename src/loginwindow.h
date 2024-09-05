@@ -27,7 +27,7 @@ private:
   API *Api = nullptr;
   Settings *Cfg = nullptr;
 
-  signals:
+signals:
   void loggedIn();
 };
 

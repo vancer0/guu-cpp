@@ -5,7 +5,8 @@
 #include "settings.h"
 #include <vector>
 
-#define CLIENT_TIMEOUT 10000 // ms
+#define CLIENT_TIMEOUT 1000      // ms
+#define CLIENT_UPL_TIMEOUT 60000 // ms
 
 typedef std::string str;
 

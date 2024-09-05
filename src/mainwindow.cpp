@@ -1,9 +1,9 @@
 #include "mainwindow.h"
-#include <QFileDialog>
-#include <QMessageBox>
 #include "./ui_mainwindow.h"
 #include "nlohmann/json.hpp"
 #include "utils.h"
+#include <QFileDialog>
+#include <QMessageBox>
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -24,68 +24,81 @@ MainWindow::~MainWindow() {
   delete Client;
   delete ui;
 }
+
 void MainWindow::uiSetup() {
-    if (Cfg->autoDl)
-        this->loadTorrentClient();
-    SettingsWin.setData(Client, Cfg);
-    SettingsWin.updateBoxes();
-    SettingsWin.updateClientSettings();
-    LoginWin.setData(Api, Cfg);
+  if (Cfg->autoDl)
+    this->loadTorrentClient();
+  SettingsWin.setData(Client, Cfg);
+  SettingsWin.updateBoxes();
+  SettingsWin.updateClientSettings();
+  LoginWin.setData(Api, Cfg);
 
-    // Menu bar
-    connect(ui->actionExit, &QAction::triggered, this, []() { exit(0); });
-    connect(ui->actionNew, &QAction::triggered, this, &MainWindow::clearAllFields);
-    connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::openProject);
-    connect(ui->actionSave, &QAction::triggered, this, &MainWindow::saveProject);
-    connect(ui->actionSave_As, &QAction::triggered, this, &MainWindow::saveProjectAs);
-    connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::openAboutWindow);
-    connect(ui->actionPreferences, &QAction::triggered, this, &MainWindow::openSettingsWindow);
-    connect(ui->actionReload_categories, &QAction::triggered, this, &MainWindow::reloadCategories);
-    connect(ui->actionRefresh_status, &QAction::triggered, this, &MainWindow::refreshInfo);
-    connect(ui->actionCheckupdates, &QAction::triggered, nullptr, utils::checkForUpdates);
+  ui->picTable->allowDrops(false);
 
-    // File
-    connect(ui->fileSelBtn, &QPushButton::pressed, this, &MainWindow::selectFile);
-    connect(ui->folderSelBtn, &QPushButton::pressed, this, &MainWindow::selectFolder);
+  // Menu bar
+  connect(ui->actionExit, &QAction::triggered, this, []() { exit(0); });
+  connect(ui->actionNew, &QAction::triggered, this,
+          &MainWindow::clearAllFields);
+  connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::openProject);
+  connect(ui->actionSave, &QAction::triggered, this, &MainWindow::saveProject);
+  connect(ui->actionSave_As, &QAction::triggered, this,
+          &MainWindow::saveProjectAs);
+  connect(ui->actionAbout, &QAction::triggered, this,
+          &MainWindow::openAboutWindow);
+  connect(ui->actionPreferences, &QAction::triggered, this,
+          &MainWindow::openSettingsWindow);
+  connect(ui->actionReload_categories, &QAction::triggered, this,
+          &MainWindow::reloadCategories);
+  connect(ui->actionRefresh_status, &QAction::triggered, this,
+          &MainWindow::refreshInfo);
+  connect(ui->actionCheckupdates, &QAction::triggered, this,
+          []() { utils::checkForUpdates(true); });
 
-    // Category selectors
-    connect(ui->category, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
-    connect(ui->subcategory1, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
-    connect(ui->subcategory2, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
-    connect(ui->subcategory3, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
-    connect(ui->subcategory4, &QComboBox::currentIndexChanged, this, &MainWindow::enableItemsAuto);
+  // File
+  connect(ui->fileSelBtn, &QPushButton::pressed, this, &MainWindow::selectFile);
+  connect(ui->folderSelBtn, &QPushButton::pressed, this,
+          &MainWindow::selectFolder);
 
-    // Picture table
-    connect(ui->managePics, &QPushButton::pressed, this, &MainWindow::openPicMgr);
-    connect(&PicMgr, &PictureManager::modified, this, &MainWindow::updatePictures);
+  // Category selectors
+  connect(ui->category, &QComboBox::currentIndexChanged, this,
+          &MainWindow::enableItemsAuto);
+  connect(ui->subcategory1, &QComboBox::currentIndexChanged, this,
+          &MainWindow::enableItemsAuto);
+  connect(ui->subcategory2, &QComboBox::currentIndexChanged, this,
+          &MainWindow::enableItemsAuto);
+  connect(ui->subcategory3, &QComboBox::currentIndexChanged, this,
+          &MainWindow::enableItemsAuto);
+  connect(ui->subcategory4, &QComboBox::currentIndexChanged, this,
+          &MainWindow::enableItemsAuto);
 
-    // Info
-    connect(ui->uploadBtn, &QPushButton::pressed, this, &MainWindow::uploadChecks);
+  // Picture table
+  connect(ui->managePics, &QPushButton::pressed, this, &MainWindow::openPicMgr);
+  connect(&PicMgr, &PictureManager::modified, this,
+          &MainWindow::updatePictures);
 
-    // Login window
-    connect(&LoginWin, &LoginWindow::loggedIn, this, &MainWindow::refreshInfo);
+  // Info
+  connect(ui->uploadBtn, &QPushButton::pressed, this,
+          &MainWindow::uploadChecks);
 
-    // Settings window
-    connect(SettingsWin.getButton(), &QPushButton::clicked, this, &MainWindow::applySettings);
+  // Login window
+  connect(&LoginWin, &LoginWindow::loggedIn, this, &MainWindow::refreshInfo);
 
+  // Settings window
+  connect(&SettingsWin, &SettingsWindow::saved, this, [this]() {
+    this->loadTorrentClient();
     this->refreshInfo();
-    this->resize(1, 1);
+  });
+
+  this->refreshInfo();
+  this->resize(1, 1);
 }
 
 void MainWindow::enableItemsAll(bool enable) {
-  ui->path->setEnabled(enable);
-  ui->fileSelBtn->setEnabled(enable);
-  ui->folderSelBtn->setEnabled(enable);
+  ui->fileBox->setEnabled(enable);
   ui->category->setEnabled(enable);
-  ui->subcategory1->setEnabled(enable);
-  ui->subcategory2->setEnabled(enable);
-  ui->subcategory3->setEnabled(enable);
-  ui->subcategory4->setEnabled(enable);
-  ui->managePics->setEnabled(enable);
-  ui->title->setEnabled(enable);
-  ui->description->setEnabled(enable);
-  ui->uploadBtn->setEnabled(enable);
-  ui->picTable->setEnabled(enable);
+  ui->subcategs->setEnabled(enable);
+  ui->picturesBox->setEnabled(enable);
+  ui->infoBox->setEnabled(enable);
   ui->loginBtn->setEnabled(enable);
 
   if (enable)
@@ -106,11 +119,8 @@ void MainWindow::enableItemsAuto() {
                                ui->subcategory2->isEnabled() &&
                                ui->subcategory3->isEnabled());
 
-  ui->managePics->setEnabled(enable);
-  ui->title->setEnabled(enable);
-  ui->description->setEnabled(enable);
-  ui->uploadBtn->setEnabled(enable);
-  ui->picTable->setEnabled(enable);
+  ui->picturesBox->setEnabled(enable);
+  ui->infoBox->setEnabled(enable);
 }
 
 void MainWindow::reloadCategories() {
@@ -160,10 +170,14 @@ void MainWindow::loadCategories() {
   }
 
   ui->category->setCurrentIndex(std::clamp(categ, 0, ui->category->count()));
-  ui->subcategory1->setCurrentIndex(std::clamp(scat1, 0, ui->subcategory1->count()));
-  ui->subcategory2->setCurrentIndex(std::clamp(scat2, 0, ui->subcategory2->count()));
-  ui->subcategory3->setCurrentIndex(std::clamp(scat3, 0, ui->subcategory3->count()));
-  ui->subcategory4->setCurrentIndex(std::clamp(scat4, 0, ui->subcategory4->count()));
+  ui->subcategory1->setCurrentIndex(
+      std::clamp(scat1, 0, ui->subcategory1->count()));
+  ui->subcategory2->setCurrentIndex(
+      std::clamp(scat2, 0, ui->subcategory2->count()));
+  ui->subcategory3->setCurrentIndex(
+      std::clamp(scat3, 0, ui->subcategory3->count()));
+  ui->subcategory4->setCurrentIndex(
+      std::clamp(scat4, 0, ui->subcategory4->count()));
 }
 
 void MainWindow::loadTorrentClient() {
@@ -172,18 +186,18 @@ void MainWindow::loadTorrentClient() {
   Client = nullptr;
 
   if (Cfg->autoDl) {
-      if (Cfg->client == "qBitTorrent")
-          Client = new qBitTorrent();
+    if (Cfg->client == "qBitTorrent")
+      Client = new qBitTorrent();
 #ifdef _WIN32
     if (Cfg->client == "uTorrent")
-        Client = new uTorrent();
+      Client = new uTorrent();
 #endif
 
     if (Client != nullptr)
-        try {
-            Client->configure(Cfg);
-        } catch (...) {
-        }
+      try {
+        Client->configure(Cfg);
+      } catch (...) {
+      }
 
     SettingsWin.setData(Client, Cfg);
   }
@@ -204,38 +218,36 @@ void MainWindow::updateStatus() {
       ui->clientStatus->setText(s);
     }
 
-  // Server check
-  if (Api->isServerOnline())
-    ui->serverStatus->setText("Online");
-  else
-    ui->serverStatus->setText("Unreachable");
+  ui->loginBtn->setText("Log In");
+  ui->userStatus->setText("-");
+  ui->loginBtn->disconnect();
+  connect(ui->loginBtn, &QPushButton::pressed, this,
+          &MainWindow::openLoginWindow);
 
-  // User check
-  if (Api->isLoggedIn()) {
-    QString username = QString::fromStdString(Api->fetchUsername());
-    ui->loginBtn->setText("Log Out");
-    ui->userStatus->setText(username);
-    ui->loginBtn->disconnect();
-    connect(ui->loginBtn, &QPushButton::pressed, this, &MainWindow::logout);
+  // Server check
+  if (Api->isServerOnline()) {
+    ui->serverStatus->setText("Online");
+    if (Api->isLoggedIn()) {
+      QString username = QString::fromStdString(Api->fetchUsername());
+      ui->loginBtn->setText("Log Out");
+      ui->userStatus->setText(username);
+      ui->loginBtn->disconnect();
+      connect(ui->loginBtn, &QPushButton::pressed, this, &MainWindow::logout);
+    }
   } else {
-    ui->loginBtn->setText("Log In");
-    ui->userStatus->setText("-");
-    ui->loginBtn->disconnect();
-    connect(ui->loginBtn, &QPushButton::pressed, this,
-            &MainWindow::openLoginWindow);
+    ui->serverStatus->setText("Unreachable");
   }
 }
 
-void MainWindow::updatePictures()
-{
-    ui->picTable->clear();
-    auto items = PicMgr.getList();
-    for (auto i : items) {
-        QListWidgetItem *item = new QListWidgetItem();
-        item->setIcon(i->icon());
-        item->setData(Qt::UserRole, i->data(Qt::UserRole).toString());
-        ui->picTable->addItem(item);
-    }
+void MainWindow::updatePictures() {
+  ui->picTable->clear();
+  auto items = PicMgr.getList();
+  for (auto i : items) {
+    QListWidgetItem *item = new QListWidgetItem();
+    item->setIcon(i->icon());
+    item->setData(Qt::UserRole, i->data(Qt::UserRole).toString());
+    ui->picTable->addItem(item);
+  }
 }
 
 void MainWindow::selectFile() {
@@ -308,7 +320,7 @@ void MainWindow::openProject() {
     std::vector<std::string> pics = proj["Pictures"]["Path(s)"];
 
     for (auto pic : pics)
-        PicMgr.addPicture(QString::fromStdString(pic));
+      PicMgr.addPicture(QString::fromStdString(pic));
     this->updatePictures();
   } catch (...) {
     QMessageBox::warning(this, "GUU - Error",
@@ -342,7 +354,8 @@ void MainWindow::saveProject() {
   std::string path = ui->path->text().toStdString();
   std::vector<std::string> pics;
   for (int i = 0; i < ui->picTable->count(); i++)
-      pics.push_back(ui->picTable->item(i)->data(Qt::UserRole).toString().toStdString());
+    pics.push_back(
+        ui->picTable->item(i)->data(Qt::UserRole).toString().toStdString());
 
   if (lastProjectPath.length() == 0)
     return;
@@ -467,9 +480,10 @@ void MainWindow::beginUpload() {
   data.description = ui->description->toPlainText().toStdString();
   data.images = {};
   for (int i = ui->picTable->count() - 1; i >= 0; i -= 1) {
-      std::string pth = ui->picTable->item(i)->data(Qt::UserRole).toString().toStdString();
-      if (std::filesystem::exists(pth))
-          data.images.push_back(pth);
+    std::string pth =
+        ui->picTable->item(i)->data(Qt::UserRole).toString().toStdString();
+    if (std::filesystem::exists(pth))
+      data.images.push_back(pth);
   }
 
   auto categs = Api->getCategories();
@@ -490,12 +504,12 @@ void MainWindow::beginUpload() {
 }
 
 void MainWindow::showUploadError(const QString &text) {
-    QMessageBox::warning(this, "GUU - Error", text);
+  QMessageBox::warning(this, "GUU - Error", text);
 
-    this->enableItemsAll(true);
-    ui->uploadStatus->setMaximum(1);
-    ui->uploadStatus->setValue(0);
-    ui->uploadStatus->setFormat("Waiting...");
+  this->enableItemsAll(true);
+  ui->uploadStatus->setMaximum(1);
+  ui->uploadStatus->setValue(0);
+  ui->uploadStatus->setFormat("Waiting...");
 }
 
 void MainWindow::finishUpload() {
@@ -510,4 +524,12 @@ void MainWindow::finishUpload() {
 
   QMessageBox::information(this, "GUU - Success",
                            "Your torrent has been uploaded!");
+}
+
+void MainWindow::closeEvent(QCloseEvent *bar) {
+  SettingsWin.hide();
+  LoginWin.hide();
+  AboutWin.hide();
+  PicMgr.hide();
+  bar->accept();
 }

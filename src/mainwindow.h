@@ -33,15 +33,9 @@ public:
   void openLoginWindow() { LoginWin.show(); }
   void openPicMgr() { PicMgr.show(); }
   void openSettingsWindow() {
-      SettingsWin.updateClientSettings();
-      SettingsWin.applySettings();
-      SettingsWin.show();
-  }
-  void applySettings() {
-      SettingsWin.saveSettings();
-      this->loadTorrentClient();
-      this->refreshInfo();
-      SettingsWin.hide();
+    SettingsWin.updateClientSettings();
+    SettingsWin.loadSettings();
+    SettingsWin.show();
   }
 
   void reloadCategories();
@@ -95,5 +89,7 @@ private:
   API *Api = nullptr;
 
   QString lastProjectPath = "Untitled.guu";
+
+  void closeEvent(QCloseEvent *bar);
 };
 #endif // MAINWINDOW_H

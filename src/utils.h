@@ -6,16 +6,19 @@
 #include <string>
 #include <vector>
 
+typedef std::string str;
+
 namespace utils {
-std::string configDirPath();
-std::string tempDirPath();
-void openUri(std::string uri);
-std::vector<char> createTorrent(std::string path, std::string parentDir);
+str configDirPath();
+str tempDirPath();
+void openUri(str uri);
+std::vector<char> createTorrent(str path, str parentDir);
 int fetchLatestVersion();
-void checkForUpdates();
+void checkForUpdates(bool msgIfLatest);
 
 #ifdef _WIN32
-std::string autoDetectUTorrentPath();
+void installWindowsUpdate(str url);
+str autoDetectUTorrentPath();
 #endif
 } // namespace utils
 
