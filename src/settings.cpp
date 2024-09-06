@@ -49,9 +49,14 @@ void Settings::load() {
 
 void Settings::save() {
 #ifdef _WIN32
-  if (uTorrentPath == "")
+  if (uTorrentPath.empty())
     uTorrentPath = utils::autoDetectUTorrentPath();
 #endif
+
+  if (gtUsername.empty() || gtPassword.empty())
+    saveLogin = false;
+  if (savePath.empty())
+    saveUploads = false;
 
   json cfg{
       {"updateCheck", updateCheck},

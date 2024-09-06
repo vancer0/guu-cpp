@@ -35,12 +35,19 @@ void PictureManager::addPicture(QString path) {
   ui->picTable->addPicture(path);
 }
 
-void PictureManager::removeInvalid() { ui->picTable->removeInvalid(); }
+void PictureManager::removeInvalid() {
+  ui->picTable->removeInvalid();
+  emit modified();
+}
+
+void PictureManager::clear() {
+  ui->picTable->clear();
+  emit modified();
+}
 
 void PictureManager::selectPictures() {
   auto paths = QFileDialog::getOpenFileNames(
-      this, tr("Open File"), "",
-      tr("Images (*.png *.jpg *.jpeg *.bmp *.tif *.psd)"));
+      this, tr("Open File"), "", tr("Images (*.png *.jpg *.jpeg *.bmp)"));
 
   for (auto pic : paths) {
     ui->picTable->addPicture(pic);

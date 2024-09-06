@@ -16,6 +16,7 @@ public:
   QList<QListWidgetItem *> getList();
   void addPicture(QString path);
   void removeInvalid();
+  void clear();
 
   void selectPictures();
   void removePictures();

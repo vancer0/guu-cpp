@@ -77,6 +77,7 @@ void MainWindow::uiSetup() {
           &MainWindow::updatePictures);
 
   // Info
+  connect(ui->title, &QLineEdit::textEdited, this, &MainWindow::checkTitle);
   connect(ui->uploadBtn, &QPushButton::pressed, this,
           &MainWindow::uploadChecks);
 
@@ -239,13 +240,34 @@ void MainWindow::updateStatus() {
   }
 }
 
+bool MainWindow::checkTitle() {
+  // / \ " ' _ , !
+  QString s = ui->title->text();
+  bool c1 = s.contains('/');
+  bool c2 = s.contains('\\');
+  bool c3 = s.contains('"');
+  bool c4 = s.contains('\'');
+  bool c5 = s.contains('_');
+  bool c6 = s.contains(',');
+  bool c7 = s.contains('!');
+
+  bool check = c1 || c2 || c3 || c4 || c5 || c6 || c7;
+
+  if (check)
+    ui->title->setStyleSheet("border: 1px solid red");
+  else
+    ui->title->setStyleSheet("");
+
+  return !check;
+}
+
 void MainWindow::updatePictures() {
   ui->picTable->clear();
   auto items = PicMgr.getList();
   for (auto i : items) {
     QListWidgetItem *item = new QListWidgetItem();
     item->setIcon(i->icon());
-    item->setData(Qt::UserRole, i->data(Qt::UserRole).toString());
+    item->setData(Qt::UserRole, i->data(Qt::UserRole));
     ui->picTable->addItem(item);
   }
 }
@@ -253,19 +275,18 @@ void MainWindow::updatePictures() {
 void MainWindow::selectFile() {
   auto path = QFileDialog::getOpenFileName(this, tr("Open File"), "",
                                            tr("All Files (*.*)"));
-
-  ui->path->clear();
-  ui->path->insert(path);
+  if (!path.isNull())
+    ui->path->setText(path);
 }
 
 void MainWindow::selectFolder() {
   auto path = QFileDialog::getExistingDirectory(this, tr("Open Folder"), "");
 
-  ui->path->clear();
-  ui->path->insert(path);
+  if (!path.isNull())
+    ui->path->setText(path);
 }
 
-void MainWindow::clearAllFields() {
+bool MainWindow::clearAllFields() {
   QMessageBox msgBox;
   msgBox.setText(
       "All fields are about to be cleared. Are you sure you want to continue?");
@@ -274,7 +295,7 @@ void MainWindow::clearAllFields() {
   msgBox.setIcon(QMessageBox::Question);
 
   if (msgBox.exec() == QMessageBox::No)
-    return;
+    return false;
 
   ui->path->clear();
   ui->category->setCurrentIndex(0);
@@ -283,17 +304,20 @@ void MainWindow::clearAllFields() {
   ui->subcategory3->setCurrentIndex(0);
   ui->subcategory4->setCurrentIndex(0);
   ui->picTable->clear();
+  PicMgr.clear();
   ui->title->clear();
   ui->description->clear();
+  return true;
 }
 
 void MainWindow::openProject() {
-  this->clearAllFields();
+  if (!this->clearAllFields())
+    return;
 
   QString path = QFileDialog::getOpenFileName(this, tr("Open Project"), "",
                                               tr("GUU Files (*.guu)"));
 
-  if (path.length() == 0)
+  if (path.isNull())
     return;
 
   std::ifstream ifs(path.toStdString());
@@ -316,12 +340,14 @@ void MainWindow::openProject() {
     ui->description->clear();
     ui->description->insertPlainText(
         QString::fromStdString(proj["Info"]["Description"]));
-    ui->picTable->clear();
+    PicMgr.clear();
     std::vector<std::string> pics = proj["Pictures"]["Path(s)"];
 
     for (auto pic : pics)
       PicMgr.addPicture(QString::fromStdString(pic));
     this->updatePictures();
+
+    lastProjectPath = path;
   } catch (...) {
     QMessageBox::warning(this, "GUU - Error",
                          "Error loading project. Error loading project.");
@@ -332,7 +358,7 @@ void MainWindow::saveProjectAs() {
   QString outPath = QFileDialog::getSaveFileName(
       this, tr("Save Project"), lastProjectPath, tr("GUU Files (*.guu)"));
 
-  if (outPath.length() != 0) {
+  if (!outPath.isNull()) {
     lastProjectPath = outPath;
     this->saveProject();
   }
@@ -391,6 +417,38 @@ void MainWindow::saveProject() {
   }
 }
 void MainWindow::uploadChecks() {
+  QString provideInfo =
+      "These fields are necessary for the torrent to be uploaded:";
+  bool needInfo = false;
+  if (ui->path->text().length() == 0 ||
+      !std::filesystem::exists(ui->path->text().toStdString())) {
+    provideInfo += "\n- Valid file/folder path";
+    needInfo = true;
+  }
+  if (ui->category->currentIndex() == 0) {
+    provideInfo += "\n- Category";
+    needInfo = true;
+  }
+  if (ui->title->text().length() == 0 || !checkTitle()) {
+    provideInfo += "\n- Valid title";
+    needInfo = true;
+  }
+  if (ui->description->toPlainText().length() == 0) {
+    provideInfo += "\n- Description";
+    needInfo = true;
+  }
+  PicMgr.removeInvalid();
+  this->updatePictures();
+  if (ui->picTable->count() == 0) {
+    provideInfo += "\n- At least 1 picture";
+    needInfo = true;
+  }
+
+  if (needInfo) {
+    QMessageBox::warning(this, "GUU - Error", provideInfo);
+    return;
+  }
+
   QMessageBox msgBox;
   msgBox.setText("Are you sure you want to upload?");
   msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -417,38 +475,6 @@ void MainWindow::uploadChecks() {
     }
   }
 
-  QString provideInfo =
-      "These fields are necessary for the torrent to be uploaded:";
-  bool needInfo = false;
-  if (ui->path->text().length() == 0 ||
-      !std::filesystem::exists(ui->path->text().toStdString())) {
-    provideInfo += "\n- Valid file/folder path";
-    needInfo = true;
-  }
-  if (ui->category->currentIndex() == 0) {
-    provideInfo += "\n- Category";
-    needInfo = true;
-  }
-  if (ui->title->text().length() == 0) {
-    provideInfo += "\n- Title";
-    needInfo = true;
-  }
-  if (ui->description->toPlainText().length() == 0) {
-    provideInfo += "\n- Description";
-    needInfo = true;
-  }
-  PicMgr.removeInvalid();
-  this->updatePictures();
-  if (ui->picTable->count() == 0) {
-    provideInfo += "\n- At least 1 picture";
-    needInfo = true;
-  }
-
-  if (needInfo) {
-    QMessageBox::warning(this, "GUU - Error", provideInfo);
-    return;
-  }
-
   this->beginUpload();
 }
 
@@ -471,7 +497,7 @@ void MainWindow::beginUpload() {
   connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
   connect(worker, &UploadWorker::finished, thread, &QThread::quit);
   connect(worker, &UploadWorker::errorRaised, thread, &QThread::quit);
-  connect(thread, &QThread::finished, this, &MainWindow::finishUpload);
+  connect(worker, &UploadWorker::finished, this, &MainWindow::finishUpload);
 
   UploadWorker::WorkerInputData data;
   data.api = Api;

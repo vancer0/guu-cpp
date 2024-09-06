@@ -51,6 +51,7 @@ public:
     this->loadCategories();
     this->updateStatus();
   }
+  bool checkTitle();
 
   void updatePictures();
 
@@ -59,7 +60,7 @@ public:
   void selectPictures();
   void removePictures();
 
-  void clearAllFields();
+  bool clearAllFields();
   void openProject();
   void saveProject();
   void saveProjectAs();

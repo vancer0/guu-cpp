@@ -14,11 +14,11 @@ SettingsWindow::SettingsWindow(QWidget *parent)
   this->resize(1, 1);
   this->setMaximumSize(this->size());
 
-  connect(ui->autoLogin, &QCheckBox::stateChanged, this,
+  connect(ui->autoLogin, &QGroupBox::toggled, this,
           &SettingsWindow::enableLoginBox);
-  connect(ui->autoDl, &QCheckBox::stateChanged, this,
+  connect(ui->autoDl, &QGroupBox::toggled, this,
           &SettingsWindow::enableClientBox);
-  connect(ui->saveUploads, &QCheckBox::stateChanged, this,
+  connect(ui->saveUploads, &QGroupBox::toggled, this,
           &SettingsWindow::enableDownloadSetting);
   connect(ui->savePathBrowse, &QPushButton::pressed, this,
           &SettingsWindow::selectSavePath);
@@ -66,7 +66,8 @@ void SettingsWindow::enableClientBox() {
 
 void SettingsWindow::enableDownloadSetting() {
   bool enable = ui->saveUploads->isChecked();
-  ui->savetorrentWidget->setEnabled(enable);
+  ui->savePath->setEnabled(enable);
+  ui->savePathBrowse->setEnabled(enable);
 }
 
 void SettingsWindow::updateClientSettings() {
@@ -105,16 +106,16 @@ void SettingsWindow::updateBoxes() {
 
 void SettingsWindow::selectSavePath() {
   auto path = QFileDialog::getExistingDirectory(this, tr("Select Folder"), "");
-  ui->savePath->clear();
-  ui->savePath->setText(path);
+  if (!path.isNull())
+    ui->savePath->setText(path);
 }
 
 void SettingsWindow::selectuTorPath() {
   auto path =
       QFileDialog::getOpenFileName(this, tr("Select uTorrent Path"), "",
                                    tr("uTorrent Executable (uTorrent.exe)"));
-  ui->uTorPath->clear();
-  ui->uTorPath->setText(path);
+  if (!path.isNull())
+    ui->uTorPath->setText(path);
 }
 
 void SettingsWindow::loadSettings() {

@@ -16,7 +16,7 @@ void qBitTorrent::configure(Settings *settings) {
 
   webUiUrl = settings->qBitHost;
 
-  if (settings->qBitPort != "80")
+  if (!settings->qBitPort.empty() || settings->qBitPort != "80")
     webUiUrl += ":" + settings->qBitPort;
 
   if (webUiUrl.rfind("http", 0) != 0)

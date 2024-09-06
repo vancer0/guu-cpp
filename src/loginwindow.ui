@@ -45,7 +45,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Please enter your gaytor.rent credentials.</string>
+      <string>Please enter your GayTor.rent credentials.</string>
      </property>
     </widget>
    </item>
