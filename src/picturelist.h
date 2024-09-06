@@ -27,6 +27,7 @@ protected:
   void paintEvent(QPaintEvent *e);
 signals:
   void itemDroped();
+  void modified();
 
 private:
   bool _allowDrops = true;

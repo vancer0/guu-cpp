@@ -122,8 +122,8 @@ jobs:
 
     - name: Build DMG
       run: |
-        mv ${{github.workspace}}/build/src/Release/guu-cpp.app "${{github.workspace}}/build/src/Release/Gaytor.rent Upload Utility.app"
-        ${{env.QT_ROOT_DIR}}/bin/macdeployqt "${{github.workspace}}/build/src/Release/Gaytor.rent Upload Utility.app" -dmg
+        mv ${{github.workspace}}/build/src/Release/guu-cpp.app "${{github.workspace}}/build/src/Release/GayTor.rent Upload Utility.app"
+        ${{env.QT_ROOT_DIR}}/bin/macdeployqt "${{github.workspace}}/build/src/Release/GayTor.rent Upload Utility.app" -dmg
         rm -r ${{github.workspace}}/build/src/Release/*.app
 
     - name: Upload artifact

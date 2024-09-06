@@ -13,7 +13,7 @@
 
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
-  a.setApplicationName("Gaytor.rent Upload Utility");
+  a.setApplicationName("GayTor.rent Upload Utility");
   a.setStyle(QStyleFactory::create("Fusion"));
   QPalette p = qApp->palette();
   p.setColor(QPalette::Highlight, QColor(210, 102, 53));

@@ -15,10 +15,8 @@ PictureManager::PictureManager(QWidget *parent)
   connect(ui->mvDown, &QPushButton::pressed, ui->picTable,
           &PictureList::moveDown);
 
-  connect(ui->addPics, &QPushButton::pressed, this, &PictureManager::modified);
-  connect(ui->rmPics, &QPushButton::pressed, this, &PictureManager::modified);
-  connect(ui->mvUp, &QPushButton::pressed, this, &PictureManager::modified);
-  connect(ui->mvDown, &QPushButton::pressed, this, &PictureManager::modified);
+  connect(ui->picTable, &PictureList::modified, this,
+          &PictureManager::modified);
 
   this->setAcceptDrops(true);
 }

@@ -15,7 +15,7 @@ PictureList::PictureList(QWidget *parent) : QListWidget(parent) {
 
 void PictureList::dropEvent(QDropEvent *event) {
   if (_allowDrops)
-    foreach (const QUrl &url, event->mimeData()->urls()) {
+    for (const QUrl &url : event->mimeData()->urls()) {
       QString fileName = url.toLocalFile();
       this->addPicture(fileName);
     }
@@ -62,6 +62,7 @@ void PictureList::removeInvalid() {
     if (!std::filesystem::exists(path.toStdString())) {
       this->removeItemWidget(item);
       delete item;
+      emit modified();
     }
   }
 }
@@ -76,6 +77,7 @@ void PictureList::addPicture(QString path) {
       item->setIcon(icon);
       item->setData(Qt::UserRole, path);
       this->addItem(item);
+      emit modified();
     }
   } else {
     QMessageBox::warning(this, "GUU - Error", path + ": File not found");
@@ -99,6 +101,7 @@ void PictureList::moveDown() {
     this->insertItem(currIndex, temp);
     this->insertItem(nextIndex, current);
   }
+  emit modified();
 }
 
 void PictureList::moveUp() {
@@ -118,4 +121,5 @@ void PictureList::moveUp() {
     this->insertItem(prevIndex, current);
     this->insertItem(currIndex, temp);
   }
+  emit modified();
 }

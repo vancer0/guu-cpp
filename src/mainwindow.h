@@ -90,6 +90,7 @@ private:
   API *Api = nullptr;
 
   QString lastProjectPath = "Untitled.guu";
+  bool _modified = false;
 
   void closeEvent(QCloseEvent *bar);
 };

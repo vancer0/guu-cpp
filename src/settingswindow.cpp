@@ -96,6 +96,8 @@ void SettingsWindow::updateClientSettings() {
 
   this->resize(1, 1);
   this->setMaximumSize(this->size());
+  if (this->isVisible())
+    this->show();
 }
 
 void SettingsWindow::updateBoxes() {

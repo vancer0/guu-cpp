@@ -23,7 +23,7 @@
    <iconset resource="assets/icon.qrc">
     <normaloff>:/guu.png</normaloff>:/guu.png</iconset>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout" stretch="10,1">
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
    <item>
     <widget class="PictureList" name="picTable"/>
    </item>
@@ -37,7 +37,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>90</width>
+       <width>70</width>
        <height>16777215</height>
       </size>
      </property>
@@ -52,6 +52,9 @@
        <width>0</width>
        <height>0</height>
       </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QAbstractButton { font-size:26px; }</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="leftMargin">
@@ -111,10 +114,7 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add Picture(s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="QIcon::ThemeIcon::ListAdd"/>
+            <string>+</string>
            </property>
           </widget>
          </item>
@@ -136,10 +136,7 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove Selected Pictures&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="QIcon::ThemeIcon::ListRemove"/>
+            <string>-</string>
            </property>
           </widget>
          </item>
@@ -185,10 +182,7 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Move picture up&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="QIcon::ThemeIcon::GoUp"/>
+            <string>↑</string>
            </property>
           </widget>
          </item>
@@ -210,10 +204,7 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Move picture down&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset theme="QIcon::ThemeIcon::GoDown"/>
+            <string>↓</string>
            </property>
           </widget>
          </item>

@@ -36,7 +36,7 @@ void MainWindow::uiSetup() {
   ui->picTable->allowDrops(false);
 
   // Menu bar
-  connect(ui->actionExit, &QAction::triggered, this, []() { exit(0); });
+  connect(ui->actionExit, &QAction::triggered, this, [this]() { close(); });
   connect(ui->actionNew, &QAction::triggered, this,
           &MainWindow::clearAllFields);
   connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::openProject);
@@ -90,8 +90,20 @@ void MainWindow::uiSetup() {
     this->refreshInfo();
   });
 
+  auto setModified = [this]() { _modified = true; };
+  connect(ui->path, &QLineEdit::textChanged, this, setModified);
+  connect(ui->category, &QComboBox::currentIndexChanged, this, setModified);
+  connect(ui->subcategory1, &QComboBox::currentIndexChanged, this, setModified);
+  connect(ui->subcategory2, &QComboBox::currentIndexChanged, this, setModified);
+  connect(ui->subcategory3, &QComboBox::currentIndexChanged, this, setModified);
+  connect(ui->subcategory4, &QComboBox::currentIndexChanged, this, setModified);
+  connect(ui->picTable, &PictureList::modified, this, setModified);
+  connect(ui->title, &QLineEdit::textChanged, this, setModified);
+  connect(ui->description, &QTextEdit::textChanged, this, setModified);
+
   this->refreshInfo();
   this->resize(1, 1);
+  _modified = false;
 }
 
 void MainWindow::enableItemsAll(bool enable) {
@@ -287,15 +299,17 @@ void MainWindow::selectFolder() {
 }
 
 bool MainWindow::clearAllFields() {
-  QMessageBox msgBox;
-  msgBox.setText(
-      "All fields are about to be cleared. Are you sure you want to continue?");
-  msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-  msgBox.setDefaultButton(QMessageBox::No);
-  msgBox.setIcon(QMessageBox::Question);
+  if (_modified) {
+    QMessageBox msgBox;
+    msgBox.setText(
+        "You have unsaved changes. Are you sure you want to continue?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.setIcon(QMessageBox::Question);
 
-  if (msgBox.exec() == QMessageBox::No)
-    return false;
+    if (msgBox.exec() == QMessageBox::No)
+      return false;
+  }
 
   ui->path->clear();
   ui->category->setCurrentIndex(0);
@@ -307,6 +321,9 @@ bool MainWindow::clearAllFields() {
   PicMgr.clear();
   ui->title->clear();
   ui->description->clear();
+
+  _modified = false;
+
   return true;
 }
 
@@ -348,6 +365,7 @@ void MainWindow::openProject() {
     this->updatePictures();
 
     lastProjectPath = path;
+    _modified = false;
   } catch (...) {
     QMessageBox::warning(this, "GUU - Error",
                          "Error loading project. Error loading project.");
@@ -415,6 +433,7 @@ void MainWindow::saveProject() {
                          "An I/O error occured while saving the project.");
     return;
   }
+  _modified = false;
 }
 void MainWindow::uploadChecks() {
   QString provideInfo =
@@ -553,6 +572,23 @@ void MainWindow::finishUpload() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *bar) {
+  if (_modified) {
+    QMessageBox msgBox;
+    msgBox.setText(
+        "You have unsaved changes.\nPlease select an action before exiting.");
+    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard |
+                              QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Save);
+    msgBox.setIcon(QMessageBox::Question);
+    int a = msgBox.exec();
+    if (a == QMessageBox::Save) {
+      saveProject();
+    } else if (a == QMessageBox::Cancel) {
+      bar->ignore();
+      return;
+    }
+  }
+
   SettingsWin.hide();
   LoginWin.hide();
   AboutWin.hide();
