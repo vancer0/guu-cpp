@@ -15,6 +15,8 @@ void openUri(str uri);
 std::vector<char> createTorrent(str path, str parentDir);
 int fetchLatestVersion();
 void checkForUpdates(bool msgIfLatest);
+bool checkIfCommandExists(str path);
+str autoDetectqBitTorrentPath();
 
 #ifdef _WIN32
 void installWindowsUpdate(str url);

@@ -113,10 +113,7 @@ void UploadWorker::doWork() {
     emit valueChanged(currStage++);
 
     if (Client != nullptr) {
-      std::basic_ifstream<char> file(tempPath, std::ios::binary);
-      std::vector<char> torBytes((std::istreambuf_iterator<char>(file)),
-                                 std::istreambuf_iterator<char>());
-      if (!Client->addTorrent(torBytes, parentDir)) {
+      if (!Client->addTorrent(tempPath, parentDir)) {
         emit errorRaised(
             "An error occured while sending the torrent to client.");
         return;

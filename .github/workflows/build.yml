@@ -83,13 +83,13 @@ jobs:
       run: |
         choco install InnoSetup -y --no-progress --allow-unofficial
         cd ${{github.workspace}}\deploy
-        iscc '${{github.workspace}}\deploy\windows-inst.iss' /O${{github.workspace}}\out
+        iscc '${{github.workspace}}\deploy\windows-inst.iss' /O${{github.workspace}}\deploy\out
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: "guu-windows"
-        path: '${{github.workspace}}\out'
+        path: '${{github.workspace}}\deploy\out'
 
   build-mac:
     runs-on: macos-13
@@ -122,12 +122,15 @@ jobs:
 
     - name: Build DMG
       run: |
+        brew install create-dmg 
         mv ${{github.workspace}}/build/src/Release/guu-cpp.app "${{github.workspace}}/build/src/Release/GayTor.rent Upload Utility.app"
-        ${{env.QT_ROOT_DIR}}/bin/macdeployqt "${{github.workspace}}/build/src/Release/GayTor.rent Upload Utility.app" -dmg
-        rm -r ${{github.workspace}}/build/src/Release/*.app
+        ${{env.QT_ROOT_DIR}}/bin/macdeployqt "${{github.workspace}}/build/src/Release/GayTor.rent Upload Utility.app"
+        cd ${{github.workspace}}/deploy
+        chmod +x ./mac-dmg.sh
+        ./mac-dmg.sh
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: "guu-mac"
-        path: "${{github.workspace}}/build/src/Release"
+        path: "${{github.workspace}}/deploy/out"

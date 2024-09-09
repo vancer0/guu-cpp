@@ -26,6 +26,7 @@ public:
   void enableDownloadSetting();
   void updateBoxes();
   void updateClientSettings();
+  void hideClientSettings();
   void refresh() {
     this->enableClientBox();
     this->enableLoginBox();
@@ -34,6 +35,7 @@ public:
 
   void selectSavePath();
   void selectuTorPath();
+  void selectqBitPath();
 
   void loadSettings();
   void saveSettings();

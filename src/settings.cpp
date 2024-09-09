@@ -30,6 +30,7 @@ void Settings::load() {
     gtPassword = cfg.value("gtPassword", gtPassword);
     autoDl = cfg.value("autoDl", autoDl);
     client = cfg.value("client", client);
+    qBitPath = cfg.value("qBitPath", qBitPath);
     qBitHost = cfg.value("qBitHost", qBitHost);
     qBitPort = cfg.value("qBitPort", qBitPort);
     qBitUsername = cfg.value("qBitUsername", qBitUsername);
@@ -52,6 +53,8 @@ void Settings::save() {
   if (uTorrentPath.empty())
     uTorrentPath = utils::autoDetectUTorrentPath();
 #endif
+  if (qBitPath.empty())
+    qBitPath = utils::autoDetectqBitTorrentPath();
 
   if (gtUsername.empty() || gtPassword.empty())
     saveLogin = false;
@@ -65,6 +68,7 @@ void Settings::save() {
       {"gtPassword", gtPassword},
       {"autoDl", autoDl},
       {"client", client},
+      {"qBitPath", qBitPath},
       {"qBitHost", qBitHost},
       {"qBitPort", qBitPort},
       {"qBitUsername", qBitUsername},

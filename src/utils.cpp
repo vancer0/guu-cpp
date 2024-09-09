@@ -95,6 +95,37 @@ void utils::checkForUpdates(bool msgIfLatest) {
   }
 }
 
+bool utils::checkIfCommandExists(str path) {
+#ifndef _WIN32
+  str tmp1 = "which " + path + " > /dev/null 2>&1";
+  str tmp2 = path + " --version";
+  if (!system(tmp1.c_str()))
+    return true;
+  else if (!system(tmp2.c_str()))
+    return true;
+#endif
+  return std::filesystem::exists(path);
+}
+
+str utils::autoDetectqBitTorrentPath() {
+  std::vector<str> usual = {
+#ifdef __linux__
+      "/usr/bin/qbittorrent",
+      "flatpak run org.qbittorrent.qBittorrent",
+#elif _WIN32
+      "C:\\Program Files\\qBittorrent\\qbittorrent.exe",
+#elif __APPLE__
+      "/Applications/qbittorrent.app/Contents/MacOS/qbittorrent",
+#endif
+  };
+
+  for (auto path : usual)
+    if (checkIfCommandExists(path))
+      return path;
+
+  return "";
+}
+
 #ifdef _WIN32
 void utils::installWindowsUpdate(str url) {
   str tmpPath = tempDirPath() + "/guu-update.exe";
@@ -115,14 +146,13 @@ void utils::installWindowsUpdate(str url) {
 }
 
 str utils::autoDetectUTorrentPath() {
-  str usual1 = "C:\\Program Files (x86)\\uTorrent\\uTorrent.exe";
-  str usual2 = sago::getDataHome() + "\\uTorrent\\uTorrent.exe";
+  std::vector<str> usual = {sago::getDataHome() + "\\uTorrent\\uTorrent.exe",
+                            "C:\\Program Files (x86)\\uTorrent\\uTorrent.exe"};
 
-  if (std::filesystem::exists(usual1))
-    return usual1;
-  else if (std::filesystem::exists(usual2))
-    return usual2;
-  else
-    return "";
+  for (auto path : usual)
+    if (checkIfCommandExists(path))
+      return path;
+
+  return "";
 }
 #endif

@@ -16,7 +16,9 @@ public:
   void load();
 
   const std::vector<str> Clients{
+      "System Default",
       "qBitTorrent",
+      "qBitTorrent WebUI",
 #ifdef _WIN32
       "uTorrent",
 #endif
@@ -30,6 +32,9 @@ public:
 
   bool autoDl = false;
   str client = Clients[0];
+
+  str qBitPath = "";
+
   str qBitHost = "http://localhost";
   str qBitPort = "8080";
   str qBitUsername = "admin";

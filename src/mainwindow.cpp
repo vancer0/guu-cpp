@@ -199,10 +199,14 @@ void MainWindow::loadTorrentClient() {
   Client = nullptr;
 
   if (Cfg->autoDl) {
-    if (Cfg->client == "qBitTorrent")
+    if (Cfg->client == "qBitTorrent WebUI")
+      Client = new qBitTorrentWeb();
+    else if (Cfg->client == "qBitTorrent")
       Client = new qBitTorrent();
+    else if (Cfg->client == "System Default")
+      Client = new SystemTorrentHandler();
 #ifdef _WIN32
-    if (Cfg->client == "uTorrent")
+    else if (Cfg->client == "uTorrent")
       Client = new uTorrent();
 #endif
 
@@ -224,12 +228,15 @@ void MainWindow::logout() {
 
 void MainWindow::updateStatus() {
   // Client check
-  ui->clientStatus->setText("N/A");
-  if (Client != nullptr)
+  ui->clientStatus->setText("-");
+  if (Client != nullptr) {
     if (Client->isConnected()) {
-      QString s = QString::fromStdString(Client->name() + " (OK)");
+      QString s = QString::fromStdString(Client->name());
       ui->clientStatus->setText(s);
+    } else {
+      ui->clientStatus->setText("N/A");
     }
+  }
 
   ui->loginBtn->setText("Log In");
   ui->userStatus->setText("-");

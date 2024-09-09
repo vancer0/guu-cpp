@@ -15,16 +15,43 @@ public:
   virtual void configure(Settings *settings) {}
   virtual bool isConnected() { return false; }
   virtual str name() { return ""; }
-  virtual bool addTorrent(std::vector<char> torrent, str localPath) {
-    return false;
-  }
+  virtual bool addTorrent(str torrent, str localPath) { return false; }
   virtual ~TorrentClient() {}
+};
+
+class SystemTorrentHandler : public TorrentClient {
+public:
+  SystemTorrentHandler() {}
+
+  str name() override { return "System Default"; }
+
+  void configure(Settings *settings) override {}
+  bool isConnected() override { return true; }
+  bool addTorrent(str torrent, str localPath) override;
+
+  ~SystemTorrentHandler() {}
+};
+
+class qBitTorrentWeb : public TorrentClient {
+private:
+  str webUiUrl;
+  cpr::Header header;
+
+public:
+  qBitTorrentWeb() {}
+
+  str name() override { return "qBitTorrent WebUI"; }
+
+  void configure(Settings *settings) override;
+  bool isConnected() override;
+  bool addTorrent(str torrent, str localPath) override;
+
+  ~qBitTorrentWeb();
 };
 
 class qBitTorrent : public TorrentClient {
 private:
-  str webUiUrl;
-  cpr::Header header;
+  str Path;
 
 public:
   qBitTorrent() {}
@@ -33,9 +60,9 @@ public:
 
   void configure(Settings *settings) override;
   bool isConnected() override;
-  bool addTorrent(std::vector<char> torrent, str localPath) override;
+  bool addTorrent(str torrent, str localPath) override;
 
-  ~qBitTorrent();
+  ~qBitTorrent() {}
 };
 
 #ifdef _WIN32
@@ -50,7 +77,7 @@ public:
 
   void configure(Settings *settings) override;
   bool isConnected() override;
-  bool addTorrent(std::vector<char> torrent, str localPath) override;
+  bool addTorrent(str torrent, str localPath) override;
 };
 #endif
 

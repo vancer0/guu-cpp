@@ -1,15 +1,33 @@
 #include "clients.h"
+#include "utils.h"
+#include <QClipboard>
+#include <QDesktopServices>
+#include <QGuiApplication>
+#include <QMessageBox>
+#include <QProcess>
+#include <QUrl>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
 
 #ifdef _WIN32
-#include "utils.h"
 #include <cstdlib>
 #include <iterator>
 #endif
 
-void qBitTorrent::configure(Settings *settings) {
+// System Handler
+
+bool SystemTorrentHandler::addTorrent(str torrent, str localPath) {
+  QClipboard *clipboard = QGuiApplication::clipboard();
+  clipboard->setText(QString::fromStdString(localPath));
+  QUrl url = QUrl("file:///" + QString::fromStdString(torrent));
+  QDesktopServices::openUrl(url);
+  return true;
+}
+
+// qBitTorrent WebUI
+
+void qBitTorrentWeb::configure(Settings *settings) {
   if (settings == nullptr) {
     throw std::runtime_error("Client: Invalid settings object");
   }
@@ -33,31 +51,55 @@ void qBitTorrent::configure(Settings *settings) {
     header = cpr::Header{{"Cookie", "SID=" + r.cookies[0].GetValue()}};
 }
 
-bool qBitTorrent::isConnected() {
+bool qBitTorrentWeb::isConnected() {
   auto r = cpr::Get(cpr::Url{webUiUrl + "/api/v2/app/version"}, header,
                     cpr::Timeout{CLIENT_TIMEOUT});
 
   return r.status_code == 200;
 }
 
-bool qBitTorrent::addTorrent(std::vector<char> torrent, str localPath) {
-  auto r =
-      cpr::Post(cpr::Url{webUiUrl + "/api/v2/torrents/add"}, header,
-                cpr::Timeout{CLIENT_UPL_TIMEOUT},
-                cpr::Multipart{
-                    {"torrents", cpr::Buffer{torrent.begin(), torrent.end(),
-                                             "upl.torrent"}},
-                    {"savepath", localPath},
-                    {"paused", "false"},
-                });
+bool qBitTorrentWeb::addTorrent(str torrent, str localPath) {
+  auto r = cpr::Post(cpr::Url{webUiUrl + "/api/v2/torrents/add"}, header,
+                     cpr::Timeout{CLIENT_UPL_TIMEOUT},
+                     cpr::Multipart{
+                         {"torrents", cpr::File{torrent}},
+                         {"savepath", localPath},
+                         {"paused", "false"},
+                     });
 
   return r.status_code == 200;
 }
 
-qBitTorrent::~qBitTorrent() {
+qBitTorrentWeb::~qBitTorrentWeb() {
   cpr::Post(cpr::Url{webUiUrl + "/api/v2/auth/logout"}, header,
             cpr::Timeout{CLIENT_TIMEOUT});
 }
+
+// qBitTorrent Local
+
+void qBitTorrent::configure(Settings *settings) {
+  if (settings == nullptr) {
+    throw std::runtime_error("Client: Invalid settings object");
+  }
+
+  if (std::filesystem::exists(settings->qBitPath))
+    Path = settings->qBitPath;
+  else
+    throw std::runtime_error("Client: Could not find specified file");
+}
+
+bool qBitTorrent::isConnected() { return utils::checkIfCommandExists(Path); }
+
+bool qBitTorrent::addTorrent(str torrent, str localPath) {
+  QString command = QString::fromStdString(Path);
+  QStringList arguments({QString::fromStdString(torrent), "--skip-dialog=true",
+                         "--save-path=" + QString::fromStdString(localPath)});
+
+  QProcess::startDetached(command, arguments);
+  return true;
+}
+
+// uTorrent
 
 #ifdef _WIN32
 void uTorrent::configure(Settings *settings) {
@@ -73,21 +115,13 @@ void uTorrent::configure(Settings *settings) {
 
 bool uTorrent::isConnected() { return std::filesystem::exists(Path); }
 
-bool uTorrent::addTorrent(std::vector<char> torrent, str localPath) {
-  str tmpPath = utils::tempDirPath() + "/temp.torrent";
-  std::filesystem::remove(tmpPath);
+bool uTorrent::addTorrent(str torrent, str localPath) {
+  QString command = QString::fromStdString(Path);
+  QStringList arguments({"/minimized", "/directory",
+                         QString::fromStdString(localPath),
+                         QString::fromStdString(torrent)});
 
-  std::ofstream file(tmpPath, std::ios::out | std::ios::binary);
-  if (!file)
-    return false;
-
-  copy(torrent.cbegin(), torrent.cend(), std::ostreambuf_iterator<char>(file));
-
-  str command = "powershell.exe \"& '" + Path + "'\" /DIRECTORY \"" +
-                localPath + "\" \"" + tmpPath + "\"";
-
-  int returnCode = system(command.c_str());
-
-  return returnCode == 0;
+  QProcess::startDetached(command, arguments);
+  return true;
 }
 #endif

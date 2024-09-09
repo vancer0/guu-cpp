@@ -32,8 +32,8 @@ AboutWindow::AboutWindow(QWidget *parent)
   ui->cprVer->setText(QStringLiteral(CPR_VERSION));
   ui->curlVer->setText(QString(curl_version_info(CURLVERSION_NOW)->version));
 
-  this->resize(1, 1);
-  this->setMaximumSize(this->size());
+  this->layout()->setSizeConstraint(QLayout::SetFixedSize);
+  this->setFixedSize(this->minimumSizeHint());
 }
 
 AboutWindow::~AboutWindow() { delete ui; }
