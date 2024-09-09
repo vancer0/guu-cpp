@@ -62,6 +62,7 @@ public:
 
   bool clearAllFields();
   void openProject();
+  void openProjectFromFile(QString path);
   void saveProject();
   void saveProjectAs();
 

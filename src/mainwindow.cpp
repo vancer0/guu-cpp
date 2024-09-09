@@ -104,6 +104,12 @@ void MainWindow::uiSetup() {
   this->refreshInfo();
   this->resize(1, 1);
   _modified = false;
+
+  auto args = qApp->arguments();
+  if (args.length() > 1) {
+    QString path = args.at(1);
+    this->openProjectFromFile(path);
+  }
 }
 
 void MainWindow::enableItemsAll(bool enable) {
@@ -341,9 +347,11 @@ void MainWindow::openProject() {
   QString path = QFileDialog::getOpenFileName(this, tr("Open Project"), "",
                                               tr("GUU Files (*.guu)"));
 
-  if (path.isNull())
-    return;
+  if (!path.isNull())
+    this->openProjectFromFile(path);
+}
 
+void MainWindow::openProjectFromFile(QString path) {
   std::ifstream ifs(path.toStdString());
   std::string content((std::istreambuf_iterator<char>(ifs)),
                       (std::istreambuf_iterator<char>()));
@@ -356,7 +364,7 @@ void MainWindow::openProject() {
     ui->path->clear();
     ui->path->setText(QString::fromStdString(proj["Info"]["Path"]));
     ui->subcategory1->setCurrentIndex(proj["Categories"]["Secondary1"]);
-    ui->subcategory1->setCurrentIndex(proj["Categories"]["Secondary2"]);
+    ui->subcategory2->setCurrentIndex(proj["Categories"]["Secondary2"]);
     ui->subcategory3->setCurrentIndex(proj["Categories"]["Secondary3"]);
     ui->subcategory4->setCurrentIndex(proj["Categories"]["Secondary4"]);
     ui->title->clear();
