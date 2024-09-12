@@ -12,10 +12,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
-find_package(cpr REQUIRED)
+find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(platform_folders REQUIRED)
 find_package(LibtorrentRasterbar REQUIRED)
+add_subdirectory(deps/cpr)
+find_package(cpr REQUIRED)
 
 find_path(JWT_CPP_INCLUDE_DIRS "jwt-cpp/base.h")
 

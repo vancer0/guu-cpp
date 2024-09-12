@@ -6,7 +6,7 @@
 #include <QDesktopServices>
 #include <QStringLiteral>
 #include <cpr/cprver.h>
-#include <curl/curl.h>
+#include <cpr/bearer.h>
 #include <string>
 
 AboutWindow::AboutWindow(QWidget *parent)
@@ -30,7 +30,7 @@ AboutWindow::AboutWindow(QWidget *parent)
   ui->ltVer->setText(QString::fromLatin1(lt::version()));
   ui->qtVer->setText(QStringLiteral(QT_VERSION_STR));
   ui->cprVer->setText(QStringLiteral(CPR_VERSION));
-  ui->curlVer->setText(QString(curl_version_info(CURLVERSION_NOW)->version));
+  ui->curlVer->setText(QString(LIBCURL_VERSION));
 
   this->layout()->setSizeConstraint(QLayout::SetFixedSize);
   this->setFixedSize(this->minimumSizeHint());

@@ -1,6 +1,5 @@
 {
   "dependencies": [
-    "cpr",
     "curl",
     "jwt-cpp",
     "libtorrent",
@@ -10,7 +9,7 @@
   "overrides": [
     {
       "name": "curl",
-      "version": "8.6.0#1"
+      "version": "8.10.0"
     }
   ]
 }
