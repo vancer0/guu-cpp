@@ -35,6 +35,10 @@ qt_add_executable(guu-cpp
 )
 
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
+if(WIN32)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+endif()
 
 target_include_directories(guu-cpp PRIVATE ${JWT_CPP_INCLUDE_DIRS})
 
