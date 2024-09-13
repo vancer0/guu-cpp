@@ -50,7 +50,7 @@ int utils::fetchLatestVersion() {
   str url = "https://api.github.com/repos/vancer0/guu-cpp/releases/latest";
 
   auto r = cpr::Get(cpr::Url{url}, cpr::Header{{"User-Agent", "GUU Updater"}},
-                    cpr::Timeout{3000});
+                    cpr::ConnectTimeout{WEB_TIMEOUT});
 
   if (r.status_code != 200)
     return 0;

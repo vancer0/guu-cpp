@@ -3,4 +3,6 @@
 
 #include "../../Version.h"
 
+#define WEB_TIMEOUT 3000 // ms
+
 #endif // CONSTANTS_H

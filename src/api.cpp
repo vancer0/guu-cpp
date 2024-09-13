@@ -1,4 +1,5 @@
 #include "api.h"
+#include "constants.h"
 
 #undef max
 #undef min
@@ -13,7 +14,7 @@ API::API() {
 }
 
 bool API::isServerOnline() {
-  auto r = cpr::Head(cpr::Url{Url}, cpr::Timeout{TIMEOUT});
+  auto r = cpr::Head(cpr::Url{Url}, cpr::ConnectTimeout{WEB_TIMEOUT});
 
   LastError = r.error;
   LastStatusCode = r.status_code;
@@ -25,7 +26,7 @@ bool API::login(str username, str password) {
   auto r =
       cpr::Post(cpr::Url{Url + "/takelogin.php"},
                 cpr::Multipart{{"username", username}, {"password", password}},
-                cpr::Timeout{TIMEOUT});
+                cpr::ConnectTimeout{WEB_TIMEOUT});
 
   Cookies = r.cookies;
   LastError = r.error;
@@ -41,7 +42,8 @@ bool API::login(str username, str password) {
 }
 
 bool API::isLoggedIn() {
-  auto r = cpr::Get(cpr::Url{Url + "/qtm.php"}, Cookies, cpr::Timeout{TIMEOUT});
+  auto r = cpr::Get(cpr::Url{Url + "/qtm.php"}, Cookies,
+                    cpr::ConnectTimeout{WEB_TIMEOUT});
 
   LastError = r.error;
   LastStatusCode = r.status_code;
@@ -50,8 +52,8 @@ bool API::isLoggedIn() {
 }
 
 bool API::logout() {
-  auto r =
-      cpr::Get(cpr::Url{Url + "/logout.php"}, Cookies, cpr::Timeout{TIMEOUT});
+  auto r = cpr::Get(cpr::Url{Url + "/logout.php"}, Cookies,
+                    cpr::ConnectTimeout{WEB_TIMEOUT});
 
   Cookies = r.cookies;
   LastError = r.error;
@@ -67,7 +69,7 @@ void API::downloadCategories() {
     return;
 
   auto r = cpr::Get(cpr::Url{Url + "/genrelist.php"}, Cookies,
-                    cpr::Timeout{TIMEOUT});
+                    cpr::ConnectTimeout{WEB_TIMEOUT});
 
   LastError = r.error;
   LastStatusCode = r.status_code;
@@ -101,7 +103,8 @@ str API::fetchUsername() {
 
 bool API::clearUploadPictures() {
   auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies,
-                     cpr::Multipart{{"delpic", "Remove"}});
+                     cpr::Multipart{{"delpic", "Remove"}},
+                     cpr::ConnectTimeout{WEB_TIMEOUT});
 
   LastError = r.error;
   LastStatusCode = r.status_code;
@@ -130,7 +133,8 @@ std::optional<str> API::upload(UploadData data) {
   for (str pic : data.picPaths)
     uplData.parts.push_back({"ulpic[]", cpr::File{pic}});
 
-  auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies, uplData);
+  auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies, uplData,
+                     cpr::ConnectTimeout{WEB_TIMEOUT});
 
   LastError = r.error;
   LastStatusCode = r.status_code;
@@ -160,8 +164,8 @@ bool API::download(str url, str path) {
   str dlUrl = Url + "/download.php/" + id + "/dl.torrent";
 
   std::ofstream of(path, std::ios::binary);
-  cpr::Response r =
-      cpr::Download(of, cpr::Url{dlUrl}, Cookies, cpr::Timeout{UPL_TIMEOUT});
+  cpr::Response r = cpr::Download(of, cpr::Url{dlUrl}, Cookies,
+                                  cpr::ConnectTimeout{WEB_TIMEOUT});
 
   LastError = r.error;
   LastStatusCode = r.status_code;

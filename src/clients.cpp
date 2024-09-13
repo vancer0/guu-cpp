@@ -1,4 +1,5 @@
 #include "clients.h"
+#include "constants.h"
 #include "utils.h"
 #include <QClipboard>
 #include <QDesktopServices>
@@ -43,7 +44,7 @@ void qBitTorrentWeb::configure(Settings *settings) {
   auto r = cpr::Post(cpr::Url{webUiUrl + "/api/v2/auth/login"},
                      cpr::Multipart{{"username", settings->qBitUsername},
                                     {"password", settings->qBitPassword}},
-                     cpr::Timeout{CLIENT_TIMEOUT});
+                     cpr::ConnectTimeout{WEB_TIMEOUT});
   if (r.status_code == 0)
     throw std::runtime_error("Client: Could not connect to qBitTorrent");
 
@@ -53,14 +54,14 @@ void qBitTorrentWeb::configure(Settings *settings) {
 
 bool qBitTorrentWeb::isConnected() {
   auto r = cpr::Get(cpr::Url{webUiUrl + "/api/v2/app/version"}, header,
-                    cpr::Timeout{CLIENT_TIMEOUT});
+                    cpr::ConnectTimeout{WEB_TIMEOUT});
 
   return r.status_code == 200;
 }
 
 bool qBitTorrentWeb::addTorrent(str torrent, str localPath) {
   auto r = cpr::Post(cpr::Url{webUiUrl + "/api/v2/torrents/add"}, header,
-                     cpr::Timeout{CLIENT_UPL_TIMEOUT},
+                     cpr::ConnectTimeout{WEB_TIMEOUT},
                      cpr::Multipart{
                          {"torrents", cpr::File{torrent}},
                          {"savepath", localPath},
@@ -72,7 +73,7 @@ bool qBitTorrentWeb::addTorrent(str torrent, str localPath) {
 
 qBitTorrentWeb::~qBitTorrentWeb() {
   cpr::Post(cpr::Url{webUiUrl + "/api/v2/auth/logout"}, header,
-            cpr::Timeout{CLIENT_TIMEOUT});
+            cpr::ConnectTimeout{WEB_TIMEOUT});
 }
 
 // qBitTorrent Local
