@@ -11,7 +11,7 @@ typedef std::string str;
 namespace utils {
 str configDirPath();
 str tempDirPath();
-void openUri(str uri);
+str logPath();
 std::vector<char> createTorrent(str path, str parentDir);
 int fetchLatestVersion();
 void checkForUpdates(bool msgIfLatest);

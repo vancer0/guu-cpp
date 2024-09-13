@@ -142,6 +142,7 @@ void SettingsWindow::selectqBitPath() {
 
 void SettingsWindow::loadSettings() {
   if (Cfg != nullptr) {
+    qDebug() << "Loading settings";
     {
       auto it =
           std::find(Cfg->Clients.begin(), Cfg->Clients.end(), Cfg->client);
@@ -173,6 +174,8 @@ void SettingsWindow::loadSettings() {
 
 void SettingsWindow::saveSettings() {
   if (Cfg != nullptr) {
+    qDebug() << "Saving settings";
+
     Cfg->updateCheck = ui->checkUpdates->isChecked();
     Cfg->saveLogin = ui->autoLogin->isChecked();
     Cfg->gtUsername = ui->gtUsername->text().toStdString();

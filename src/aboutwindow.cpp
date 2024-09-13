@@ -5,8 +5,8 @@
 #include "utils.h"
 #include <QDesktopServices>
 #include <QStringLiteral>
-#include <cpr/cprver.h>
 #include <cpr/bearer.h>
+#include <cpr/cprver.h>
 #include <string>
 
 AboutWindow::AboutWindow(QWidget *parent)

@@ -4,6 +4,7 @@
 #include "libtorrent/create_torrent.hpp"
 #include "nlohmann/json.hpp"
 
+#include <QDebug>
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QUrl>
@@ -29,6 +30,8 @@ str utils::tempDirPath() {
   else
     return "";
 }
+
+str utils::logPath() { return utils::configDirPath() + "/log.txt"; }
 
 std::vector<char> utils::createTorrent(str path, str parentDir) {
   lt::file_storage fs;
@@ -64,6 +67,7 @@ int utils::fetchLatestVersion() {
 void utils::checkForUpdates(bool msgIfLatest) {
   int latestVer = utils::fetchLatestVersion();
   if (latestVer > VERSION) {
+    qInfo() << "Found new version:" << latestVer;
     QMessageBox msgBox;
     msgBox.setWindowTitle("GUU - Updater");
     msgBox.setText("A new version of GUU is available (v" +
@@ -80,19 +84,19 @@ void utils::checkForUpdates(bool msgIfLatest) {
       url += "/GUU-Windows-Installer-x86_64.exe";
       utils::installWindowsUpdate(url.toStdString());
 #else
-
 #ifdef __linux__
       url += "/GUU-Linux-x86_64.AppImage";
 #elif __APPLE__
       url += "/GUU-Mac-x86_64.dmg";
-#endif
+#endif // __linux__, __APPLE__
       QDesktopServices::openUrl(QUrl(url, QUrl::TolerantMode));
-
-#endif
+#endif // WIN32
+      return;
     }
   } else if (msgIfLatest) {
     QMessageBox::information(nullptr, "GUU - Updater", "No new updates found!");
   }
+  qInfo() << "No new version found";
 }
 
 bool utils::checkIfCommandExists(str path) {

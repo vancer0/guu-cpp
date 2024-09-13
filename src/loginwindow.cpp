@@ -25,6 +25,8 @@ void LoginWindow::login() {
   std::string password = ui->password->text().toStdString();
   ui->password->clear();
 
+  qInfo() << "Sending login info";
+
   if (username.empty() || password.empty())
     return;
 
@@ -37,8 +39,11 @@ void LoginWindow::login() {
       Cfg->gtPassword = password;
       Cfg->save();
     }
+    qInfo() << "Logged in as" << QString::fromStdString(username);
     emit loggedIn();
   } else {
+    qWarning() << "Could not login:" << Api->getLastStatusCode()
+               << Api->getLastError().message;
     QMessageBox::warning(
         this, "GUU - Error",
         "Could not login. Please check your credentials and try again.");

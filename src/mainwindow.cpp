@@ -2,6 +2,8 @@
 #include "./ui_mainwindow.h"
 #include "nlohmann/json.hpp"
 #include "utils.h"
+#include <QDebug>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <algorithm>
@@ -53,6 +55,10 @@ void MainWindow::uiSetup() {
           &MainWindow::refreshInfo);
   connect(ui->actionCheckupdates, &QAction::triggered, this,
           []() { utils::checkForUpdates(true); });
+  connect(ui->actionOpen_logs, &QAction::triggered, this, []() {
+    QDesktopServices::openUrl(
+        QUrl("file:///" + QString::fromStdString(utils::logPath())));
+  });
 
   // File
   connect(ui->fileSelBtn, &QPushButton::pressed, this, &MainWindow::selectFile);
@@ -90,7 +96,10 @@ void MainWindow::uiSetup() {
     this->refreshInfo();
   });
 
-  auto setModified = [this]() { _modified = true; };
+  auto setModified = [this]() {
+    _modified = true;
+    qDebug() << "Document modified";
+  };
   connect(ui->path, &QLineEdit::textChanged, this, setModified);
   connect(ui->category, &QComboBox::currentIndexChanged, this, setModified);
   connect(ui->subcategory1, &QComboBox::currentIndexChanged, this, setModified);
@@ -147,6 +156,7 @@ void MainWindow::reloadCategories() {
     QMessageBox::warning(this, "GUU - Error",
                          "You must be logged in to do that.");
   } else {
+    qInfo() << "Re-downloading categories";
     Api->downloadCategories();
     this->loadCategories();
   }
@@ -156,6 +166,7 @@ void MainWindow::loadCategories() {
   if (!Api->hasCategories()) {
     ui->category->clear();
     ui->category->addItem("Log in to load categories");
+    qWarning() << "Could not load categories";
     return;
   }
 
@@ -197,6 +208,8 @@ void MainWindow::loadCategories() {
       std::clamp(scat3, 0, ui->subcategory3->count()));
   ui->subcategory4->setCurrentIndex(
       std::clamp(scat4, 0, ui->subcategory4->count()));
+
+  qInfo() << "Loaded categories";
 }
 
 void MainWindow::loadTorrentClient() {
@@ -219,7 +232,9 @@ void MainWindow::loadTorrentClient() {
     if (Client != nullptr)
       try {
         Client->configure(Cfg);
-      } catch (...) {
+        qInfo() << "Initialized torrent client:" << Client->name();
+      } catch (const std::exception &e) {
+        qWarning() << "Failed to initialize torrent client:" << e.what();
       }
 
     SettingsWin.setData(Client, Cfg);
@@ -227,12 +242,18 @@ void MainWindow::loadTorrentClient() {
 }
 void MainWindow::logout() {
   this->enableItemsAll(false);
-  Api->logout();
-  this->refreshInfo();
-  this->enableItemsAll(true);
+  if (Api->logout()) {
+    this->refreshInfo();
+    this->enableItemsAll(true);
+    qInfo() << "Logged out";
+  } else {
+    qWarning() << "Error logging out:" << Api->getLastStatusCode()
+               << Api->getLastError().message;
+  }
 }
 
 void MainWindow::updateStatus() {
+  qInfo() << "Updating status";
   // Client check
   ui->clientStatus->setText("-");
   if (Client != nullptr) {
@@ -252,32 +273,28 @@ void MainWindow::updateStatus() {
 
   // Server check
   if (Api->isServerOnline()) {
+    qInfo() << "Server online";
+    ui->loginBtn->setEnabled(true);
     ui->serverStatus->setText("Online");
     if (Api->isLoggedIn()) {
-      QString username = QString::fromStdString(Api->fetchUsername());
+      auto usr = QString::fromStdString(Api->fetchUsername());
+      qInfo() << "Current user:" << usr;
       ui->loginBtn->setText("Log Out");
-      ui->userStatus->setText(username);
+      ui->userStatus->setText(usr);
       ui->loginBtn->disconnect();
       connect(ui->loginBtn, &QPushButton::pressed, this, &MainWindow::logout);
     }
   } else {
+    qWarning() << "Server offline:" << Api->getLastStatusCode()
+               << Api->getLastError().message;
+    ui->loginBtn->setEnabled(false);
     ui->serverStatus->setText("Unreachable");
   }
 }
 
 bool MainWindow::checkTitle() {
-  // / \ " ' _ , !
   QString s = ui->title->text();
-  bool c1 = s.contains('/');
-  bool c2 = s.contains('\\');
-  bool c3 = s.contains('"');
-  bool c4 = s.contains('\'');
-  bool c5 = s.contains('_');
-  bool c6 = s.contains(',');
-  bool c7 = s.contains('!');
-
-  bool check = c1 || c2 || c3 || c4 || c5 || c6 || c7;
-
+  bool check = s.contains(QRegularExpression(R"~((\/|\\|"|'|_|,|!))~"));
   if (check)
     ui->title->setStyleSheet("border: 1px solid red");
   else
@@ -287,6 +304,7 @@ bool MainWindow::checkTitle() {
 }
 
 void MainWindow::updatePictures() {
+  qDebug() << "Pictures modified";
   ui->picTable->clear();
   auto items = PicMgr.getList();
   for (auto i : items) {
@@ -336,7 +354,7 @@ bool MainWindow::clearAllFields() {
   ui->description->clear();
 
   _modified = false;
-
+  qInfo() << "Cleared document";
   return true;
 }
 
@@ -352,6 +370,7 @@ void MainWindow::openProject() {
 }
 
 void MainWindow::openProjectFromFile(QString path) {
+  qInfo() << "Loading project:" << path;
   std::ifstream ifs(path.toStdString());
   std::string content((std::istreambuf_iterator<char>(ifs)),
                       (std::istreambuf_iterator<char>()));
@@ -402,6 +421,8 @@ void MainWindow::saveProject() {
     this->saveProjectAs();
     return;
   }
+
+  qDebug() << "Saving project to:" << lastProjectPath;
 
   int mc = ui->category->currentIndex();
   int sc1 = ui->subcategory1->currentIndex();
@@ -480,6 +501,8 @@ void MainWindow::uploadChecks() {
 
   if (needInfo) {
     QMessageBox::warning(this, "GUU - Error", provideInfo);
+    qWarning() << "Aborting upload:"
+               << "Invalid information";
     return;
   }
 
@@ -493,6 +516,8 @@ void MainWindow::uploadChecks() {
     return;
 
   if (!Api->isLoggedIn()) {
+    qWarning() << "Aborting upload:"
+               << "Not logged in";
     int res = QMessageBox::warning(this, "GUU - Error",
                                    "You need to be logged in to upload.");
     if (res == QMessageBox::Ok)
@@ -502,6 +527,8 @@ void MainWindow::uploadChecks() {
 
   if (Cfg->autoDl && Client != nullptr) {
     if (!Client->isConnected()) {
+      qWarning() << "Aborting upload:"
+                 << "Auto seeding enabled, but no client connected";
       QMessageBox::warning(this, "GUU - Error",
                            "Torrent client unavailable. Your torrent cannot be "
                            "seeded automatically. Aborting...");
@@ -509,6 +536,7 @@ void MainWindow::uploadChecks() {
     }
   }
 
+  qInfo() << "Starting upload";
   this->beginUpload();
 }
 
@@ -560,10 +588,15 @@ void MainWindow::beginUpload() {
     }
   }
 
+  qInfo() << "Categories:" << data.categ << data.sCateg1 << data.sCateg2
+          << data.sCateg3 << data.sCateg4 << "Title:" << data.title
+          << "| Path:" << data.path << "| Pictures:" << data.images.size();
+
   worker->run(data);
 }
 
 void MainWindow::showUploadError(const QString &text) {
+  qCritical() << "Upload failed:" << text;
   QMessageBox::warning(this, "GUU - Error", text);
 
   this->enableItemsAll(true);
@@ -582,6 +615,7 @@ void MainWindow::finishUpload() {
   ui->uploadStatus->setValue(0);
   ui->uploadStatus->setFormat("Waiting...");
 
+  qInfo() << "Upload complete";
   QMessageBox::information(this, "GUU - Success",
                            "Your torrent has been uploaded!");
 }

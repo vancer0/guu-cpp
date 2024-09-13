@@ -5,6 +5,7 @@
 #include "cpr/cpr.h"
 #include <iostream>
 #include <map>
+#include <optional>
 #include <regex>
 #include <string>
 #include <vector>
@@ -21,6 +22,7 @@ private:
   Categories categories;
 
   cpr::Error LastError;
+  int LastStatusCode = -1;
 
 public:
   struct UploadData {
@@ -41,6 +43,7 @@ public:
   void updateURL(str url) { Url = url; }
   bool isServerOnline();
   cpr::Error getLastError() { return LastError; }
+  int getLastStatusCode() { return LastStatusCode; }
 
   bool login(str username, str password);
   bool isLoggedIn();
@@ -52,7 +55,7 @@ public:
   str fetchUsername();
 
   bool clearUploadPictures();
-  str upload(UploadData data);
+  std::optional<str> upload(UploadData data);
   bool download(str url, str path);
 };
 

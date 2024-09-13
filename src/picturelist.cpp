@@ -77,6 +77,7 @@ void PictureList::addPicture(QString path) {
       item->setIcon(icon);
       item->setData(Qt::UserRole, path);
       this->addItem(item);
+      qDebug() << "Added picture:" << path;
       emit modified();
     }
   } else {

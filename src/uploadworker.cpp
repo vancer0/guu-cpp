@@ -1,9 +1,9 @@
 #include "uploadworker.h"
-#include <iostream>
-
 #include "utils.h"
+#include <QDebug>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 
 UploadWorker::UploadWorker(QObject *parent) : QObject(parent) {}
 
@@ -29,6 +29,7 @@ void UploadWorker::run(WorkerInputData data) {
 void UploadWorker::doWork() {
   int currStage = 1;
 
+  qInfo() << "Creating torrent";
   emit textChanged("Creating torrent...");
   emit valueChanged(currStage++);
 
@@ -41,6 +42,7 @@ void UploadWorker::doWork() {
       parentDir = {tmp.parent_path().u8string()};
     }
   } catch (...) {
+    qWarning() << "Exception raised while parsing parent path";
     emit errorRaised("An error occured while parsing the input path.");
     return;
   }
@@ -49,10 +51,12 @@ void UploadWorker::doWork() {
   try {
     torrent = utils::createTorrent(Data.path, parentDir);
   } catch (...) {
+    qWarning() << "Exception raised while creating the torrent";
     emit errorRaised("An error occured while creating the torrent file.");
     return;
   }
 
+  qInfo() << "Uploading torrent";
   emit textChanged("Uploading torrent...");
   emit valueChanged(currStage++);
 
@@ -68,17 +72,21 @@ void UploadWorker::doWork() {
   uplData.sCateg4 = Data.sCateg4;
 
   if (Data.api == nullptr) {
+    qCritical() << "API is NULL...";
     emit errorRaised("FATAL: Invalid API object.");
     return;
   }
 
-  std::string url = Data.api->upload(uplData);
-
-  if (Data.api->getLastError().code != cpr::ErrorCode::OK) {
+  auto urlres = Data.api->upload(uplData);
+  if (!urlres.has_value()) {
+    qCritical() << "Error uploading:" << Data.api->getLastStatusCode()
+                << Data.api->getLastError().message;
     emit errorRaised("An error occured while uploading the torrent.");
     return;
   }
+  std::string url = urlres.value();
 
+  qInfo() << "Downloading torrent:" << QString::fromStdString(url);
   emit textChanged("Verifying torrent...");
   emit valueChanged(currStage++);
 
@@ -86,39 +94,48 @@ void UploadWorker::doWork() {
   std::filesystem::remove(tempPath);
 
   if (!Data.api->download(url, tempPath)) {
+    qCritical() << "Error downloading torrent:" << Data.api->getLastStatusCode()
+                << Data.api->getLastError().message;
     emit errorRaised("The uploaded torrent could not be verified.");
     return;
   }
 
   if (Cfg == nullptr) {
+    qCritical() << "Settings is NULL";
     emit errorRaised("FATAL: Invalid configuration object.");
     return;
   }
+
   if (Cfg->saveUploads) {
     emit textChanged("Saving torrent...");
     emit valueChanged(currStage++);
 
     std::string saveTo = Cfg->savePath + "/" + Data.title + ".torrent";
+    qInfo() << "Saving torrent to:" << QString::fromStdString(saveTo);
 
     try {
       std::filesystem::copy(tempPath, saveTo);
     } catch (...) {
+      qCritical() << "Error saving torrent";
       emit errorRaised("An error occured while saving the torrent.");
       return;
     }
   }
 
   if (Cfg->autoDl) {
+    qInfo() << "Sending torrent to client";
     emit textChanged("Sending torrent to client...");
     emit valueChanged(currStage++);
 
     if (Client != nullptr) {
       if (!Client->addTorrent(tempPath, parentDir)) {
+        qCritical() << "Error sending the torrent to the client";
         emit errorRaised(
-            "An error occured while sending the torrent to client.");
+            "An error occured while sending the torrent to the client.");
         return;
       }
     } else {
+      qCritical() << "Client is NULL...";
       emit errorRaised("FATAL: Invalid client object.");
       return;
     }
