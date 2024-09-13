@@ -290,6 +290,10 @@ void MainWindow::updateStatus() {
     ui->loginBtn->setEnabled(false);
     ui->serverStatus->setText("Unreachable");
   }
+
+  ui->serverInfo->setToolTip(
+      QString::number(Api->getLastStatusCode()) +
+      QString::fromStdString(Api->getLastError().message));
 }
 
 bool MainWindow::checkTitle() {
@@ -330,7 +334,7 @@ void MainWindow::selectFolder() {
 }
 
 bool MainWindow::clearAllFields() {
-  if (_modified) {
+  if (_modified && Cfg->saveWarn) {
     QMessageBox msgBox;
     msgBox.setText(
         "You have unsaved changes. Are you sure you want to continue?");
@@ -461,7 +465,7 @@ void MainWindow::saveProject() {
     return;
   }
 
-  out << proj.dump();
+  out << proj.dump(2);
   out.close();
 
   if (out.bad() || out.fail()) {
@@ -621,7 +625,7 @@ void MainWindow::finishUpload() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *bar) {
-  if (_modified) {
+  if (_modified && Cfg->saveWarn) {
     QMessageBox msgBox;
     msgBox.setText(
         "You have unsaved changes.\nPlease select an action before exiting.");

@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#define TIMEOUT 2000       // ms
+#define TIMEOUT 5000       // ms
 #define UPL_TIMEOUT 120000 // ms
 
 typedef std::string str;

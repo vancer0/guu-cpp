@@ -25,6 +25,7 @@ public:
   };
 
   bool updateCheck = true;
+  bool saveWarn = true;
 
   bool saveLogin = false;
   str gtUsername = "";

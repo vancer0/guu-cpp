@@ -25,6 +25,7 @@ void Settings::load() {
     auto cfg = json::parse(content);
 
     updateCheck = cfg.value("updateCheck", updateCheck);
+    saveWarn = cfg.value("saveWarn", saveWarn);
     saveLogin = cfg.value("saveLogin", saveLogin);
     gtUsername = cfg.value("gtUsername", gtUsername);
     gtPassword = cfg.value("gtPassword", gtPassword);
@@ -63,6 +64,7 @@ void Settings::save() {
 
   json cfg{
       {"updateCheck", updateCheck},
+      {"saveWarn", saveWarn},
       {"saveLogin", saveLogin},
       {"gtUsername", gtUsername},
       {"gtPassword", gtPassword},
@@ -84,7 +86,7 @@ void Settings::save() {
   if (!out)
     throw std::runtime_error("Settings: Error creating settings file.");
 
-  out << cfg.dump();
+  out << cfg.dump(2);
   out.close();
 
   if (out.bad() || out.fail())

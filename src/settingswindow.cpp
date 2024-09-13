@@ -153,6 +153,7 @@ void SettingsWindow::loadSettings() {
     }
 
     ui->checkUpdates->setChecked(Cfg->updateCheck);
+    ui->saveWarn->setChecked(Cfg->saveWarn);
     ui->autoLogin->setChecked(Cfg->saveLogin);
     ui->gtUsername->setText(QString::fromStdString(Cfg->gtUsername));
     ui->gtPassword->setText(QString::fromStdString(Cfg->gtPassword));
@@ -177,6 +178,7 @@ void SettingsWindow::saveSettings() {
     qDebug() << "Saving settings";
 
     Cfg->updateCheck = ui->checkUpdates->isChecked();
+    Cfg->saveWarn = ui->saveWarn->isChecked();
     Cfg->saveLogin = ui->autoLogin->isChecked();
     Cfg->gtUsername = ui->gtUsername->text().toStdString();
     Cfg->gtPassword = ui->gtPassword->text().toStdString();

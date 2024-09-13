@@ -564,6 +564,13 @@ the torrent will be copied to your clipboard
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="saveWarn">
+         <property name="text">
+          <string>Warn me before clearing an unsaved project</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Orientation::Vertical</enum>
