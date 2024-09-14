@@ -52,6 +52,20 @@ void PictureList::paintEvent(QPaintEvent *e) {
   p.drawText(rect(), Qt::AlignCenter, text);
 }
 
+void PictureList::wheelEvent(QWheelEvent *ev) {
+  if (qApp->queryKeyboardModifiers() == Qt::ControlModifier) {
+    int curr = this->iconSize().width();
+    if (ev->angleDelta().y() > 0) {
+      curr += 20;
+    } else if (ev->angleDelta().y() < 0) {
+      curr = std::max(20, curr - 20);
+    }
+    this->setIconSize(QSize(curr, curr));
+  } else {
+    QListWidget::wheelEvent(ev);
+  }
+}
+
 void PictureList::allowDrops(bool allow) { _allowDrops = allow; }
 
 void PictureList::removeInvalid() {
@@ -64,6 +78,13 @@ void PictureList::removeInvalid() {
       emit modified();
     }
   }
+}
+
+void PictureList::removeSelected() {
+  auto items = this->selectedItems();
+  for (auto item : items)
+    delete this->takeItem(this->row(item));
+  emit modified();
 }
 
 void PictureList::addPicture(QString path) {

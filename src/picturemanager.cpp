@@ -52,10 +52,6 @@ void PictureManager::selectPictures() {
   }
 }
 
-void PictureManager::removePictures() {
-  auto items = ui->picTable->selectedItems();
-  for (auto item : items)
-    delete ui->picTable->takeItem(ui->picTable->row(item));
-}
+void PictureManager::removePictures() { ui->picTable->removeSelected(); }
 
 PictureManager::~PictureManager() { delete ui; }

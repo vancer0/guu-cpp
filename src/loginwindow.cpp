@@ -9,7 +9,6 @@ LoginWindow::LoginWindow(QWidget *parent)
   ui->setupUi(this);
   this->layout()->setSizeConstraint(QLayout::SetFixedSize);
   this->setFixedSize(this->minimumSizeHint());
-  ui->loginBtn->setShortcut(tr("Return"));
   connect(ui->loginBtn, &QPushButton::pressed, this, &LoginWindow::login);
 }
 

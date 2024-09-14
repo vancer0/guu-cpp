@@ -12,6 +12,7 @@ public:
   PictureList(QWidget *parent);
   void addPicture(QString path);
   void removeInvalid();
+  void removeSelected();
 
   void moveDown();
   void moveUp();
@@ -24,6 +25,7 @@ protected:
   void dragLeaveEvent(QDragLeaveEvent *event);
   void dropEvent(QDropEvent *event);
   void paintEvent(QPaintEvent *e);
+  void wheelEvent(QWheelEvent *ev);
 signals:
   void itemDroped();
   void modified();
