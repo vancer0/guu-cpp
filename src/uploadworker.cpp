@@ -33,26 +33,12 @@ void UploadWorker::doWork() {
   emit textChanged("Creating torrent...");
   emit valueChanged(currStage++);
 
-  std::string parentDir = "";
+  byteData torrent;
   try {
-    if (std::filesystem::is_directory(Data.path))
-      parentDir = Data.path;
-    else if (std::filesystem::is_regular_file(Data.path)) {
-      std::filesystem::path tmp(Data.path);
-      parentDir = {tmp.parent_path().u8string()};
-    }
-  } catch (...) {
-    qWarning() << "Exception raised while parsing parent path";
-    emit errorRaised("An error occured while parsing the input path.");
-    return;
-  }
-
-  std::vector<char> torrent = {};
-  try {
-    torrent = utils::createTorrent(Data.path, parentDir);
-  } catch (...) {
-    qWarning() << "Exception raised while creating the torrent";
-    emit errorRaised("An error occured while creating the torrent file.");
+    torrent = utils::createTorrent(Data.path);
+  } catch (const std::exception &e) {
+    qWarning() << "Exception raised while creating the torrent:" << e.what();
+    emit errorRaised("An error occured while creating the torrent.");
     return;
   }
 
@@ -84,13 +70,13 @@ void UploadWorker::doWork() {
     emit errorRaised("An error occured while uploading the torrent.");
     return;
   }
-  std::string url = urlres.value();
+  String url = urlres.value();
 
   qInfo() << "Downloading torrent:" << QString::fromStdString(url);
   emit textChanged("Verifying torrent...");
   emit valueChanged(currStage++);
 
-  std::string tempPath = utils::tempDirPath() + "/dl.torrent";
+  Path tempPath = utils::tempDirPath() / "dl.torrent";
   std::filesystem::remove(tempPath);
 
   if (!Data.api->download(url, tempPath)) {
@@ -110,15 +96,15 @@ void UploadWorker::doWork() {
     emit textChanged("Saving torrent...");
     emit valueChanged(currStage++);
 
-    std::string saveTo = Cfg->savePath + "/" + Data.title + ".torrent";
-    qInfo() << "Saving torrent to:" << QString::fromStdString(saveTo);
+    Path saveTo(Cfg->savePath + "/" + Data.title + ".torrent");
+    qInfo() << "Saving torrent to:" << QString::fromStdString(saveTo.string());
 
     try {
+      std::filesystem::remove(saveTo);
       std::filesystem::copy(tempPath, saveTo);
-    } catch (...) {
-      qCritical() << "Error saving torrent";
-      emit errorRaised("An error occured while saving the torrent.");
-      return;
+    } catch (const std::exception &e) {
+      qWarning() << "Error saving torrent:" << e.what();
+      emit warningRaised("An error occured while saving the torrent.");
     }
   }
 
@@ -128,11 +114,10 @@ void UploadWorker::doWork() {
     emit valueChanged(currStage++);
 
     if (Client != nullptr) {
-      if (!Client->addTorrent(tempPath, parentDir)) {
-        qCritical() << "Error sending the torrent to the client";
-        emit errorRaised(
+      if (!Client->addTorrent(tempPath, Data.path.parent_path().string())) {
+        qWarning() << "Error sending the torrent to the client";
+        emit warningRaised(
             "An error occured while sending the torrent to the client.");
-        return;
       }
     } else {
       qCritical() << "Client is NULL...";

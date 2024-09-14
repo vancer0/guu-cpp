@@ -3,16 +3,15 @@
 
 #include "cpr/cpr.h"
 #include "settings.h"
+#include "types.h"
 #include <vector>
-
-typedef std::string str;
 
 class TorrentClient {
 public:
   virtual void configure(Settings *settings) {}
   virtual bool isConnected() { return false; }
-  virtual str name() { return ""; }
-  virtual bool addTorrent(str torrent, str localPath) { return false; }
+  virtual String name() { return ""; }
+  virtual bool addTorrent(Path torrent, Path localPath) { return false; }
   virtual ~TorrentClient() {}
 };
 
@@ -20,44 +19,44 @@ class SystemTorrentHandler : public TorrentClient {
 public:
   SystemTorrentHandler() {}
 
-  str name() override { return "System Default"; }
+  String name() override { return "System Default"; }
 
   void configure(Settings *settings) override {}
   bool isConnected() override { return true; }
-  bool addTorrent(str torrent, str localPath) override;
+  bool addTorrent(Path torrent, Path localPath) override;
 
   ~SystemTorrentHandler() {}
 };
 
 class qBitTorrentWeb : public TorrentClient {
 private:
-  str webUiUrl;
-  cpr::Header header;
+  String _webUiUrl;
+  cpr::Header _header;
 
 public:
   qBitTorrentWeb() {}
 
-  str name() override { return "qBitTorrent WebUI"; }
+  String name() override { return "qBitTorrent WebUI"; }
 
   void configure(Settings *settings) override;
   bool isConnected() override;
-  bool addTorrent(str torrent, str localPath) override;
+  bool addTorrent(Path torrent, Path localPath) override;
 
   ~qBitTorrentWeb();
 };
 
 class qBitTorrent : public TorrentClient {
 private:
-  str Path;
+  Path _path;
 
 public:
   qBitTorrent() {}
 
-  str name() override { return "qBitTorrent"; }
+  String name() override { return "qBitTorrent"; }
 
   void configure(Settings *settings) override;
   bool isConnected() override;
-  bool addTorrent(str torrent, str localPath) override;
+  bool addTorrent(Path torrent, Path localPath) override;
 
   ~qBitTorrent() {}
 };
@@ -65,16 +64,16 @@ public:
 #ifdef _WIN32
 class uTorrent : public TorrentClient {
 private:
-  str Path;
+  Path _path;
 
 public:
   uTorrent() {}
 
-  str name() override { return "uTorrent"; }
+  String name() override { return "uTorrent"; }
 
   void configure(Settings *settings) override;
   bool isConnected() override;
-  bool addTorrent(str torrent, str localPath) override;
+  bool addTorrent(Path torrent, Path localPath) override;
 };
 #endif
 

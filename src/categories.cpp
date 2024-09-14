@@ -6,14 +6,14 @@
 
 using json = nlohmann::json;
 
-Categories::Categories() {
-  path = utils::tempDirPath() + "/categories-cache.json";
+CategoriesParser::CategoriesParser() {
+  _path = utils::tempDirPath() / "categories-cache.json";
 }
 
-void Categories::parseFromApi(str data) {
+void CategoriesParser::parseFromApi(String data) {
   std::stringstream categs(data);
-  str segment;
-  std::vector<str> categListRaw;
+  String segment;
+  std::vector<String> categListRaw;
 
   while (std::getline(categs, segment, '\n')) {
     categListRaw.push_back(segment);
@@ -22,8 +22,8 @@ void Categories::parseFromApi(str data) {
 
   for (auto c : categListRaw) {
     std::stringstream categ(c);
-    str segment;
-    std::vector<str> tmpVec;
+    String segment;
+    std::vector<String> tmpVec;
     while (std::getline(categ, segment, ';')) {
       tmpVec.push_back(segment);
     }
@@ -32,8 +32,8 @@ void Categories::parseFromApi(str data) {
   }
 }
 
-void Categories::loadFromFile() {
-  std::ifstream ifs(path);
+void CategoriesParser::loadFromFile() {
+  std::ifstream ifs(_path);
   std::string content((std::istreambuf_iterator<char>(ifs)),
                       (std::istreambuf_iterator<char>()));
 
@@ -43,8 +43,8 @@ void Categories::loadFromFile() {
     categories[c.key()] = c.value();
 }
 
-void Categories::saveToFile() {
-  std::ofstream out(path);
+void CategoriesParser::saveToFile() {
+  std::ofstream out(_path);
 
   json categs;
 
@@ -55,6 +55,6 @@ void Categories::saveToFile() {
   out.close();
 }
 
-bool Categories::isEmpty() { return categories.empty(); }
+bool CategoriesParser::isEmpty() { return categories.empty(); }
 
-std::map<str, str> Categories::get() { return categories; }
+Categories CategoriesParser::get() { return categories; }

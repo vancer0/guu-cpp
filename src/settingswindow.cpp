@@ -87,7 +87,7 @@ void SettingsWindow::updateClientSettings() {
 
   hideClientSettings();
 
-  std::string name = Cfg->Clients[ui->torrentClient->currentIndex()];
+  String name = Cfg->Clients[ui->torrentClient->currentIndex()];
 
   if (name == "qBitTorrent") {
     ui->qBitTorSettings->setVisible(true);

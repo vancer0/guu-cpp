@@ -22,7 +22,7 @@ bool API::isServerOnline() {
   return r.status_code == 200;
 }
 
-bool API::login(str username, str password) {
+bool API::login(String username, String password) {
   auto r =
       cpr::Post(cpr::Url{Url + "/takelogin.php"},
                 cpr::Multipart{{"username", username}, {"password", password}},
@@ -81,13 +81,13 @@ void API::downloadCategories() {
   }
 }
 
-std::map<str, str> API::getCategories() { return categories.get(); }
+Categories API::getCategories() { return categories.get(); }
 
-str API::fetchUsername() {
+String API::fetchUsername() {
   if (!this->isLoggedIn())
     return "";
 
-  str token = "";
+  String token = "";
   for (cpr::Cookie cookie : Cookies) {
     if (cookie.GetName() == "token")
       token = cookie.GetValue();
@@ -98,7 +98,7 @@ str API::fetchUsername() {
 
   auto decoded = jwt::decode(token);
 
-  return decoded.get_payload_json()["username"].get<std::string>();
+  return decoded.get_payload_json()["username"].get<String>();
 }
 
 bool API::clearUploadPictures() {
@@ -112,7 +112,7 @@ bool API::clearUploadPictures() {
   return r.status_code == 200;
 }
 
-std::optional<str> API::upload(UploadData data) {
+std::optional<String> API::upload(UploadData data) {
   this->clearUploadPictures();
 
   cpr::Multipart uplData{};
@@ -130,8 +130,8 @@ std::optional<str> API::upload(UploadData data) {
   uplData.parts.push_back(
       {"file",
        cpr::Buffer{data.torrent.begin(), data.torrent.end(), "upl.torrent"}});
-  for (str pic : data.picPaths)
-    uplData.parts.push_back({"ulpic[]", cpr::File{pic}});
+  for (Path pic : data.picPaths)
+    uplData.parts.push_back({"ulpic[]", cpr::File{pic.string()}});
 
   auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies, uplData,
                      cpr::ConnectTimeout{WEB_TIMEOUT});
@@ -146,8 +146,8 @@ std::optional<str> API::upload(UploadData data) {
   }
 }
 
-bool API::download(str url, str path) {
-  str id = "";
+bool API::download(String url, Path path) {
+  String id = "";
 
   std::regex const e{R"~(\?id=([^&]*))~"};
   auto it = std::sregex_iterator(url.begin(), url.end(), e);
@@ -161,7 +161,7 @@ bool API::download(str url, str path) {
   if (id == "")
     return false;
 
-  str dlUrl = Url + "/download.php/" + id + "/dl.torrent";
+  String dlUrl = Url + "/download.php/" + id + "/dl.torrent";
 
   std::ofstream of(path, std::ios::binary);
   cpr::Response r = cpr::Download(of, cpr::Url{dlUrl}, Cookies,

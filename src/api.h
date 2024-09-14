@@ -3,57 +3,54 @@
 
 #include "categories.h"
 #include "cpr/cpr.h"
+#include "types.h"
 #include <iostream>
 #include <map>
 #include <optional>
 #include <regex>
-#include <string>
 #include <vector>
-
-typedef std::string str;
 
 class API {
 private:
-  str Url;
+  String Url;
   cpr::Cookies Cookies;
-  Categories categories;
+  CategoriesParser categories;
 
   cpr::Error LastError;
   int LastStatusCode = -1;
 
 public:
   struct UploadData {
-    std::vector<char> torrent;
-    std::vector<str> picPaths;
-    str mainCateg;
-    str sCateg1;
-    str sCateg2;
-    str sCateg3;
-    str sCateg4;
-    str title;
-    str description;
+    byteData torrent;
+    std::vector<Path> picPaths;
+    String mainCateg;
+    String sCateg1;
+    String sCateg2;
+    String sCateg3;
+    String sCateg4;
+    String title;
+    String description;
   };
 
   API();
-  API(str url) : Url(url) {}
 
-  void updateURL(str url) { Url = url; }
+  void updateURL(String url) { Url = url; }
   bool isServerOnline();
   cpr::Error getLastError() { return LastError; }
   int getLastStatusCode() { return LastStatusCode; }
 
-  bool login(str username, str password);
+  bool login(String username, String password);
   bool isLoggedIn();
   bool logout();
 
   bool hasCategories();
   void downloadCategories();
-  std::map<str, str> getCategories();
-  str fetchUsername();
+  Categories getCategories();
+  String fetchUsername();
 
   bool clearUploadPictures();
-  std::optional<str> upload(UploadData data);
-  bool download(str url, str path);
+  std::optional<String> upload(UploadData data);
+  bool download(String url, Path path);
 };
 
 #endif // API_H

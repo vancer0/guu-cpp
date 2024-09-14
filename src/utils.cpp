@@ -11,43 +11,44 @@
 
 using json = nlohmann::json;
 
-str utils::configDirPath() {
-  str path = sago::getConfigHome() + "/guu";
+Path utils::configDirPath() {
+  Path path = Path(sago::getConfigHome()) / "guu";
   if (std::filesystem::exists(path))
     return path;
   else if (std::filesystem::create_directories(path))
     return path;
   else
-    return "";
+    return Path();
 }
 
-str utils::tempDirPath() {
-  str path = sago::getCacheDir() + "/gaytorrent";
+Path utils::tempDirPath() {
+  Path path = Path(sago::getCacheDir()) / "gaytorrent";
   if (std::filesystem::exists(path))
     return path;
   else if (std::filesystem::create_directories(path))
     return path;
   else
-    return "";
+    return Path();
 }
 
-str utils::logPath() { return utils::configDirPath() + "/log.txt"; }
+Path utils::logPath() { return utils::configDirPath() / "log.txt"; }
 
-std::vector<char> utils::createTorrent(str path, str parentDir) {
+byteData utils::createTorrent(Path path) {
   lt::file_storage fs;
-  lt::add_files(fs, path);
+  lt::add_files(fs, path.string());
   lt::create_torrent t(fs);
-  t.add_tracker("http://tracker.gaytor.rent:2710/announce", 0);
-  str creator = "GayTor.rent Upload Utility v" + std::to_string(VERSION);
+  t.add_tracker("http://tracker.gaytor.rent:2710/announce");
+  String creator = "GayTor.rent Upload Utility v" + std::to_string(VERSION);
   t.set_creator(creator.c_str());
-  lt::set_piece_hashes(t, parentDir, [](lt::piece_index_t const p) {});
+  lt::set_piece_hashes(t, path.parent_path().string(),
+                       [](lt::piece_index_t const p) {});
 
-  std::vector<char> torrent = t.generate_buf();
+  byteData torrent = t.generate_buf();
   return torrent;
 }
 
 int utils::fetchLatestVersion() {
-  str url = "https://api.github.com/repos/vancer0/guu-cpp/releases/latest";
+  String url = "https://api.github.com/repos/vancer0/guu-cpp/releases/latest";
 
   auto r = cpr::Get(cpr::Url{url}, cpr::Header{{"User-Agent", "GUU Updater"}},
                     cpr::ConnectTimeout{WEB_TIMEOUT});
@@ -57,7 +58,7 @@ int utils::fetchLatestVersion() {
 
   try {
     json data = json::parse(r.text);
-    str ver = data["tag_name"];
+    String ver = data["tag_name"];
     return std::stoi(ver);
   } catch (...) {
     return 0;
@@ -99,48 +100,48 @@ void utils::checkForUpdates(bool msgIfLatest) {
   qInfo() << "No new version found";
 }
 
-bool utils::checkIfCommandExists(str path) {
+bool utils::checkIfCommandExists(String cmd) {
 #ifndef _WIN32
-  str tmp1 = "which " + path + " > /dev/null 2>&1";
-  str tmp2 = path + " --version";
+  String tmp1 = "which " + cmd + " > /dev/null 2>&1";
+  String tmp2 = cmd + " --version";
   if (!system(tmp1.c_str()))
     return true;
   else if (!system(tmp2.c_str()))
     return true;
 #endif
-  return std::filesystem::exists(path);
+  return std::filesystem::exists(cmd);
 }
 
-str utils::autoDetectqBitTorrentPath() {
-  std::vector<str> usual = {
+Path utils::autoDetectqBitTorrentPath() {
+  std::vector<Path> usual = {
 #ifdef __linux__
       "/usr/bin/qbittorrent",
       "flatpak run org.qbittorrent.qBittorrent",
 #elif _WIN32
-      "C:\\Program Files\\qBittorrent\\qbittorrent.exe",
+      "C:/Program Files/qBittorrent/qbittorrent.exe",
 #elif __APPLE__
       "/Applications/qbittorrent.app/Contents/MacOS/qbittorrent",
 #endif
   };
 
-  for (auto path : usual)
-    if (checkIfCommandExists(path))
+  for (Path path : usual)
+    if (checkIfCommandExists(path.string()))
       return path;
 
   return "";
 }
 
 #ifdef _WIN32
-void utils::installWindowsUpdate(str url) {
-  str tmpPath = tempDirPath() + "/guu-update.exe";
+void utils::installWindowsUpdate(String url) {
+  Path tmpPath = tempDirPath() / "guu-update.exe";
 
   std::ofstream of(tmpPath, std::ios::binary);
   cpr::Response r = cpr::Download(of, cpr::Url{url},
                                   cpr::Header{{"User-Agent", "GUU Updater"}});
   of.close();
 
-  str command =
-      "powershell.exe \"& '" + tmpPath + "'\" /SILENT /FORCECLOSEAPPLICATIONS";
+  String command = "powershell.exe \"& '" + tmpPath.string() +
+                   "'\" /SILENT /FORCECLOSEAPPLICATIONS";
   int returnCode = system(command.c_str());
 
   if (returnCode != 0) {
@@ -149,12 +150,13 @@ void utils::installWindowsUpdate(str url) {
   }
 }
 
-str utils::autoDetectUTorrentPath() {
-  std::vector<str> usual = {sago::getDataHome() + "\\uTorrent\\uTorrent.exe",
-                            "C:\\Program Files (x86)\\uTorrent\\uTorrent.exe"};
+Path utils::autoDetectUTorrentPath() {
+  std::vector<Path> usual = {Path(sago::getDataHome()) /
+                                 "uTorrent/uTorrent.exe",
+                             "C:/Program Files (x86)/uTorrent/uTorrent.exe"};
 
-  for (auto path : usual)
-    if (checkIfCommandExists(path))
+  for (Path path : usual)
+    if (checkIfCommandExists(path.string()))
       return path;
 
   return "";

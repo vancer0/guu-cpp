@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QThread>
-#include <string>
 
 #include "aboutwindow.h"
 #include "api.h"
@@ -68,6 +67,7 @@ public:
 
   void uploadChecks();
   void beginUpload();
+  void showUploadWarning(const QString &text);
   void showUploadError(const QString &text);
   void finishUpload();
 

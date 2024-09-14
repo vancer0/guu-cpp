@@ -57,7 +57,7 @@ void MainWindow::uiSetup() {
           []() { utils::checkForUpdates(true); });
   connect(ui->actionOpen_logs, &QAction::triggered, this, []() {
     QDesktopServices::openUrl(
-        QUrl("file:///" + QString::fromStdString(utils::logPath())));
+        QUrl(QString::fromStdString("file:///" + utils::logPath().string())));
   });
 
   // File
@@ -396,7 +396,7 @@ void MainWindow::openProjectFromFile(QString path) {
     ui->description->insertPlainText(
         QString::fromStdString(proj["Info"]["Description"]));
     PicMgr.clear();
-    std::vector<std::string> pics = proj["Pictures"]["Path(s)"];
+    std::vector<String> pics = proj["Pictures"]["Path(s)"];
 
     for (auto pic : pics)
       PicMgr.addPicture(QString::fromStdString(pic));
@@ -404,9 +404,9 @@ void MainWindow::openProjectFromFile(QString path) {
 
     lastProjectPath = path;
     _modified = false;
-  } catch (...) {
-    QMessageBox::warning(this, "GUU - Error",
-                         "Error loading project. Error loading project.");
+  } catch (const std::exception &e) {
+    qWarning() << "Could not load project" << path << "|" << e.what();
+    QMessageBox::warning(this, "GUU - Error", "Error loading project");
   }
 }
 
@@ -433,10 +433,10 @@ void MainWindow::saveProject() {
   int sc2 = ui->subcategory2->currentIndex();
   int sc3 = ui->subcategory3->currentIndex();
   int sc4 = ui->subcategory4->currentIndex();
-  std::string title = ui->title->text().toStdString();
-  std::string description = ui->description->toPlainText().toStdString();
-  std::string path = ui->path->text().toStdString();
-  std::vector<std::string> pics;
+  String title = ui->title->text().toStdString();
+  String description = ui->description->toPlainText().toStdString();
+  String path = ui->path->text().toStdString();
+  std::vector<String> pics;
   for (int i = 0; i < ui->picTable->count(); i++)
     pics.push_back(
         ui->picTable->item(i)->data(Qt::UserRole).toString().toStdString());
@@ -572,8 +572,8 @@ void MainWindow::beginUpload() {
   data.description = ui->description->toPlainText().toStdString();
   data.images = {};
   for (int i = ui->picTable->count() - 1; i >= 0; i -= 1) {
-    std::string pth =
-        ui->picTable->item(i)->data(Qt::UserRole).toString().toStdString();
+    Path pth(
+        ui->picTable->item(i)->data(Qt::UserRole).toString().toStdString());
     if (std::filesystem::exists(pth))
       data.images.push_back(pth);
   }
@@ -597,6 +597,10 @@ void MainWindow::beginUpload() {
           << "| Path:" << data.path << "| Pictures:" << data.images.size();
 
   worker->run(data);
+}
+
+void MainWindow::showUploadWarning(const QString &text) {
+  QMessageBox::warning(this, "GUU - Warning", text);
 }
 
 void MainWindow::showUploadError(const QString &text) {

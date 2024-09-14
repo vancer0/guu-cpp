@@ -7,7 +7,6 @@
 #include <QSplashScreen>
 #include <QStyleFactory>
 #include <filesystem>
-#include <string>
 
 #include "api.h"
 #include "constants.h"
@@ -17,7 +16,7 @@
 void debugOut(QtMsgType type, const QMessageLogContext &context,
               const QString &msg) {
   FILE *log;
-  log = fopen(utils::logPath().c_str(), "a");
+  log = fopen(utils::logPath().string().c_str(), "a");
 
   QByteArray localMsg = msg.toLocal8Bit();
   switch (type) {

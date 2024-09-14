@@ -4,7 +4,6 @@
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QGuiApplication>
-#include <QMessageBox>
 #include <QProcess>
 #include <QUrl>
 #include <filesystem>
@@ -18,10 +17,10 @@
 
 // System Handler
 
-bool SystemTorrentHandler::addTorrent(str torrent, str localPath) {
+bool SystemTorrentHandler::addTorrent(Path torrent, Path localPath) {
   QClipboard *clipboard = QGuiApplication::clipboard();
-  clipboard->setText(QString::fromStdString(localPath));
-  QUrl url = QUrl("file:///" + QString::fromStdString(torrent));
+  clipboard->setText(QString::fromStdString(localPath.string()));
+  QUrl url = QUrl(QString::fromStdString("file:///" + torrent.string()));
   QDesktopServices::openUrl(url);
   return true;
 }
@@ -33,15 +32,15 @@ void qBitTorrentWeb::configure(Settings *settings) {
     throw std::runtime_error("Client: Invalid settings object");
   }
 
-  webUiUrl = settings->qBitHost;
+  _webUiUrl = settings->qBitHost;
 
   if (!settings->qBitPort.empty() || settings->qBitPort != "80")
-    webUiUrl += ":" + settings->qBitPort;
+    _webUiUrl += ":" + settings->qBitPort;
 
-  if (webUiUrl.rfind("http", 0) != 0)
-    webUiUrl = "http://" + webUiUrl;
+  if (_webUiUrl.rfind("http", 0) != 0)
+    _webUiUrl = "http://" + _webUiUrl;
 
-  auto r = cpr::Post(cpr::Url{webUiUrl + "/api/v2/auth/login"},
+  auto r = cpr::Post(cpr::Url{_webUiUrl + "/api/v2/auth/login"},
                      cpr::Multipart{{"username", settings->qBitUsername},
                                     {"password", settings->qBitPassword}},
                      cpr::ConnectTimeout{WEB_TIMEOUT});
@@ -49,22 +48,22 @@ void qBitTorrentWeb::configure(Settings *settings) {
     throw std::runtime_error("Client: Could not connect to qBitTorrent");
 
   if (r.text == "Ok.")
-    header = cpr::Header{{"Cookie", "SID=" + r.cookies[0].GetValue()}};
+    _header = cpr::Header{{"Cookie", "SID=" + r.cookies[0].GetValue()}};
 }
 
 bool qBitTorrentWeb::isConnected() {
-  auto r = cpr::Get(cpr::Url{webUiUrl + "/api/v2/app/version"}, header,
+  auto r = cpr::Get(cpr::Url{_webUiUrl + "/api/v2/app/version"}, _header,
                     cpr::ConnectTimeout{WEB_TIMEOUT});
 
   return r.status_code == 200;
 }
 
-bool qBitTorrentWeb::addTorrent(str torrent, str localPath) {
-  auto r = cpr::Post(cpr::Url{webUiUrl + "/api/v2/torrents/add"}, header,
+bool qBitTorrentWeb::addTorrent(Path torrent, Path localPath) {
+  auto r = cpr::Post(cpr::Url{_webUiUrl + "/api/v2/torrents/add"}, _header,
                      cpr::ConnectTimeout{WEB_TIMEOUT},
                      cpr::Multipart{
-                         {"torrents", cpr::File{torrent}},
-                         {"savepath", localPath},
+                         {"torrents", cpr::File{torrent.string()}},
+                         {"savepath", localPath.string()},
                          {"paused", "false"},
                      });
 
@@ -72,7 +71,7 @@ bool qBitTorrentWeb::addTorrent(str torrent, str localPath) {
 }
 
 qBitTorrentWeb::~qBitTorrentWeb() {
-  cpr::Post(cpr::Url{webUiUrl + "/api/v2/auth/logout"}, header,
+  cpr::Post(cpr::Url{_webUiUrl + "/api/v2/auth/logout"}, _header,
             cpr::ConnectTimeout{WEB_TIMEOUT});
 }
 
@@ -84,17 +83,20 @@ void qBitTorrent::configure(Settings *settings) {
   }
 
   if (std::filesystem::exists(settings->qBitPath))
-    Path = settings->qBitPath;
+    _path = settings->qBitPath;
   else
     throw std::runtime_error("Client: Could not find specified file");
 }
 
-bool qBitTorrent::isConnected() { return utils::checkIfCommandExists(Path); }
+bool qBitTorrent::isConnected() {
+  return utils::checkIfCommandExists(_path.string());
+}
 
-bool qBitTorrent::addTorrent(str torrent, str localPath) {
-  QString command = QString::fromStdString(Path);
-  QStringList arguments({QString::fromStdString(torrent), "--skip-dialog=true",
-                         "--save-path=" + QString::fromStdString(localPath)});
+bool qBitTorrent::addTorrent(Path torrent, Path localPath) {
+  QString command = QString::fromStdString(_path.string());
+  QStringList arguments(
+      {QString::fromStdString(torrent.string()), "--skip-dialog=true",
+       "--save-path=" + QString::fromStdString(localPath.string())});
 
   QProcess::startDetached(command, arguments);
   return true;
@@ -109,18 +111,18 @@ void uTorrent::configure(Settings *settings) {
   }
 
   if (std::filesystem::exists(settings->uTorrentPath))
-    Path = settings->uTorrentPath;
+    _path = settings->uTorrentPath;
   else
     throw std::runtime_error("Client: Could not find specified file");
 }
 
-bool uTorrent::isConnected() { return std::filesystem::exists(Path); }
+bool uTorrent::isConnected() { return std::filesystem::exists(_path); }
 
-bool uTorrent::addTorrent(str torrent, str localPath) {
-  QString command = QString::fromStdString(Path);
+bool uTorrent::addTorrent(Path torrent, Path localPath) {
+  QString command = QString::fromStdString(_path.string());
   QStringList arguments({"/minimized", "/directory",
-                         QString::fromStdString(localPath),
-                         QString::fromStdString(torrent)});
+                         QString::fromStdString(localPath.string()),
+                         QString::fromStdString(torrent.string())});
 
   QProcess::startDetached(command, arguments);
   return true;

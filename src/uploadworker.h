@@ -5,10 +5,6 @@
 #include "clients.h"
 #include "settings.h"
 #include <QObject>
-#include <string>
-#include <vector>
-
-typedef std::string str;
 
 class UploadWorker : public QObject {
   Q_OBJECT
@@ -17,15 +13,15 @@ public:
 
   struct WorkerInputData {
     API *api = nullptr;
-    str path = "";
-    str categ = "";
-    str sCateg1 = "";
-    str sCateg2 = "";
-    str sCateg3 = "";
-    str sCateg4 = "";
-    str title = "";
-    str description = "";
-    std::vector<str> images = {};
+    Path path = "";
+    String categ = "";
+    String sCateg1 = "";
+    String sCateg2 = "";
+    String sCateg3 = "";
+    String sCateg4 = "";
+    String title = "";
+    String description = "";
+    std::vector<Path> images = {};
   };
 
   void configure(Settings *cfg, TorrentClient *client);
@@ -42,6 +38,7 @@ signals:
   void workRequested();
   void textChanged(const QString &value);
   void valueChanged(const int &value);
+  void warningRaised(const QString &value);
   void errorRaised(const QString &value);
   void finished();
 

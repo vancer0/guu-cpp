@@ -5,7 +5,6 @@
 #include <QDropEvent>
 #include <QListWidget>
 #include <QMimeData>
-#include <string>
 
 class PictureList : public QListWidget {
   Q_OBJECT

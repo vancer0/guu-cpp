@@ -2,25 +2,22 @@
 #define UTILS_H
 
 #include "sago/platform_folders.h"
+#include "types.h"
 #include <filesystem>
-#include <string>
-#include <vector>
-
-typedef std::string str;
 
 namespace utils {
-str configDirPath();
-str tempDirPath();
-str logPath();
-std::vector<char> createTorrent(str path, str parentDir);
+Path configDirPath();
+Path tempDirPath();
+Path logPath();
+byteData createTorrent(Path path);
 int fetchLatestVersion();
 void checkForUpdates(bool msgIfLatest);
-bool checkIfCommandExists(str path);
-str autoDetectqBitTorrentPath();
+bool checkIfCommandExists(String cmd);
+Path autoDetectqBitTorrentPath();
 
 #ifdef _WIN32
-void installWindowsUpdate(str url);
-str autoDetectUTorrentPath();
+void installWindowsUpdate(String url);
+Path autoDetectUTorrentPath();
 #endif
 } // namespace utils
 

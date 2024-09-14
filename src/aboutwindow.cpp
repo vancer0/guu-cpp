@@ -7,7 +7,6 @@
 #include <QStringLiteral>
 #include <cpr/bearer.h>
 #include <cpr/cprver.h>
-#include <string>
 
 AboutWindow::AboutWindow(QWidget *parent)
     : QWidget(parent), ui(new Ui::AboutWindow) {
@@ -30,7 +29,7 @@ AboutWindow::AboutWindow(QWidget *parent)
   ui->ltVer->setText(QString::fromLatin1(lt::version()));
   ui->qtVer->setText(QStringLiteral(QT_VERSION_STR));
   ui->cprVer->setText(QStringLiteral(CPR_VERSION));
-  ui->curlVer->setText(QString(LIBCURL_VERSION));
+  ui->curlVer->setText(QStringLiteral(LIBCURL_VERSION));
 
   this->layout()->setSizeConstraint(QLayout::SetFixedSize);
   this->setFixedSize(this->minimumSizeHint());

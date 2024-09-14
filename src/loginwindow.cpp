@@ -1,6 +1,7 @@
 #include "loginwindow.h"
 #include "ui_loginwindow.h"
 
+#include "types.h"
 #include <QMessageBox>
 
 LoginWindow::LoginWindow(QWidget *parent)
@@ -21,8 +22,8 @@ void LoginWindow::login() {
   if (Api == nullptr || Cfg == nullptr)
     return;
 
-  std::string username = ui->username->text().toStdString();
-  std::string password = ui->password->text().toStdString();
+  String username = ui->username->text().toStdString();
+  String password = ui->password->text().toStdString();
   ui->password->clear();
 
   qInfo() << "Sending login info";
@@ -44,9 +45,13 @@ void LoginWindow::login() {
   } else {
     qWarning() << "Could not login:" << Api->getLastStatusCode()
                << Api->getLastError().message;
-    QMessageBox::warning(
-        this, "GUU - Error",
-        "Could not login. Please check your credentials and try again.");
+
+    QString msg = "Could not login. ";
+    if (Api->getLastStatusCode() == 404)
+      msg += "Please check your credentials and try again.";
+    else
+      msg += "Check the logs for more information";
+    QMessageBox::warning(this, "GUU - Error", msg);
   }
 }
 

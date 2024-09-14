@@ -2,7 +2,6 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <filesystem>
-#include <string>
 
 PictureList::PictureList(QWidget *parent) : QListWidget(parent) {
   this->setAcceptDrops(true);

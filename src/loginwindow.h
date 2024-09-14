@@ -6,7 +6,6 @@
 
 #include "api.h"
 #include "settings.h"
-#include <string>
 
 namespace Ui {
 class LoginWindow;

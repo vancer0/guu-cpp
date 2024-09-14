@@ -1,21 +1,17 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <map>
-#include <string>
-#include <vector>
-
-typedef std::string str;
+#include "types.h"
 
 class Settings {
 public:
   Settings();
-  Settings(str path);
+  Settings(Path path);
 
   void save();
   void load();
 
-  const std::vector<str> Clients{
+  const std::vector<String> Clients{
       "System Default",
       "qBitTorrent",
       "qBitTorrent WebUI",
@@ -28,28 +24,28 @@ public:
   bool saveWarn = true;
 
   bool saveLogin = false;
-  str gtUsername = "";
-  str gtPassword = "";
+  String gtUsername = "";
+  String gtPassword = "";
 
   bool autoDl = false;
-  str client = Clients[0];
+  String client = Clients[0];
 
-  str qBitPath = "";
+  String qBitPath = "";
 
-  str qBitHost = "http://localhost";
-  str qBitPort = "8080";
-  str qBitUsername = "admin";
-  str qBitPassword = "";
+  String qBitHost = "http://localhost";
+  String qBitPort = "8080";
+  String qBitUsername = "admin";
+  String qBitPassword = "";
 
 #ifdef _WIN32
-  str uTorrentPath = "";
+  String uTorrentPath = "";
 #endif
 
   bool saveUploads = false;
-  str savePath = "";
+  String savePath = "";
 
 private:
-  str configPath;
+  Path configPath;
 };
 
 #endif // SETTINGS_H
