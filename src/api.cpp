@@ -112,8 +112,25 @@ bool API::clearUploadPictures() {
   return r.status_code == 200;
 }
 
-std::optional<String> API::upload(UploadData data) {
+String API::upload(UploadData data,
+                   const std::function<void(int, int)> &callback) {
   this->clearUploadPictures();
+  int totalPics = data.picPaths.size();
+  int totalSteps = totalPics + 1;
+
+  for (int i = 0; i < totalPics; i++) {
+    Path pic = data.picPaths[i];
+    cpr::Multipart picUplData{{"ulpic[]", cpr::File{pic.string()}}};
+    auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies, picUplData,
+                       cpr::ConnectTimeout{WEB_TIMEOUT});
+
+    if (r.status_code != 200) {
+      throw std::runtime_error("Error uploading picture " + pic.string() +
+                               " | " + std::to_string(r.status_code) + " " +
+                               r.error.message);
+    }
+    callback(i + 1, totalSteps);
+  }
 
   cpr::Multipart uplData{};
 
@@ -130,11 +147,11 @@ std::optional<String> API::upload(UploadData data) {
   uplData.parts.push_back(
       {"file",
        cpr::Buffer{data.torrent.begin(), data.torrent.end(), "upl.torrent"}});
-  for (Path pic : data.picPaths)
-    uplData.parts.push_back({"ulpic[]", cpr::File{pic.string()}});
 
   auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies, uplData,
                      cpr::ConnectTimeout{WEB_TIMEOUT});
+
+  callback(totalSteps, totalSteps);
 
   LastError = r.error;
   LastStatusCode = r.status_code;
@@ -142,7 +159,9 @@ std::optional<String> API::upload(UploadData data) {
   if (r.status_code == 200) {
     return r.url.str();
   } else {
-    return {};
+    throw std::runtime_error(
+        "Error completing upload: " + std::to_string(r.status_code) + " " +
+        r.error.message);
   }
 }
 

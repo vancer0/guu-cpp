@@ -585,7 +585,7 @@ void MainWindow::beginUpload() {
   if (ui->subcategory1->currentIndex() != 0) {
     data.sCateg1 = categs[ui->subcategory1->currentText().toStdString()];
     if (ui->subcategory2->currentIndex() != 0) {
-      data.sCateg2 = categs[ui->subcategory1->currentText().toStdString()];
+      data.sCateg2 = categs[ui->subcategory2->currentText().toStdString()];
       if (ui->subcategory3->currentIndex() != 0) {
         data.sCateg3 = categs[ui->subcategory3->currentText().toStdString()];
         if (ui->subcategory4->currentIndex() != 0)
@@ -613,6 +613,7 @@ void MainWindow::showUploadError(const QString &text) {
 }
 
 void MainWindow::finishUpload(bool showDialog) {
+  thread->wait();
   delete thread;
   delete worker;
 

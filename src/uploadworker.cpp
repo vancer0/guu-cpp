@@ -11,10 +11,10 @@ void UploadWorker::configure(Settings *cfg, TorrentClient *client) {
   Cfg = cfg;
   Client = client;
 
-  // 100: Torrent creation
-  // 50: Upload
+  // 200: Torrent creation
+  // 100: Upload
   // 50: Verify
-  Stages = 200;
+  Stages = 350;
   if (Cfg != nullptr) {
     if (Cfg->autoDl)
       Stages += 50;
@@ -40,7 +40,7 @@ void UploadWorker::doWork() {
   try {
     torrent =
         utils::createTorrent(Data.path, [this, currStage](int curr, int total) {
-          float p = 100.0 * ((float)curr / (float)total);
+          float p = 200.0 * ((float)curr / (float)total);
           emit valueChanged(currStage + (int)p);
           emit textChanged("Creating torrent... (" + QString::number(curr) +
                            '/' + QString::number(total) + ')');
@@ -50,7 +50,7 @@ void UploadWorker::doWork() {
     emit errorRaised("An error occured while creating the torrent.");
     return;
   }
-  currStage += 100;
+  currStage += 200;
   emit valueChanged(currStage);
 
   qInfo() << "Uploading torrent";
@@ -73,16 +73,20 @@ void UploadWorker::doWork() {
     return;
   }
 
-  auto urlres = Data.api->upload(uplData);
-  if (!urlres.has_value()) {
-    qCritical() << "Error uploading:" << Data.api->getLastStatusCode()
-                << Data.api->getLastError().message;
+  String url;
+  try {
+    url = Data.api->upload(uplData, [this, currStage](int curr, int total) {
+      float p = 100.0 * ((float)curr / (float)total);
+      emit valueChanged(currStage + (int)p);
+      emit textChanged("Uploading torrent... (" + QString::number(curr) + '/' +
+                       QString::number(total) + ')');
+    });
+  } catch (const std::exception &e) {
+    qCritical() << e.what();
     emit errorRaised("An error occured while uploading the torrent.");
     return;
   }
-  String url = urlres.value();
-
-  currStage += 50;
+  currStage += 100;
   emit valueChanged(currStage);
 
   qInfo() << "Downloading torrent:" << QString::fromStdString(url);

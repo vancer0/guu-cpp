@@ -30,9 +30,8 @@ void debugOut(QtMsgType type, const QMessageLogContext &context,
     fprintf(log, "CRITICAL | %s | %s\n", context.function,
             localMsg.constData());
     break;
-  case QtFatalMsg:
-    fprintf(log, "FATAL | %s | %s\n", context.function, localMsg.constData());
-    abort();
+  default:
+    break;
   }
 
   fclose(log);

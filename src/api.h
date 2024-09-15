@@ -4,6 +4,7 @@
 #include "categories.h"
 #include "cpr/cpr.h"
 #include "types.h"
+#include <functional>
 #include <iostream>
 #include <map>
 #include <optional>
@@ -49,7 +50,7 @@ public:
   String fetchUsername();
 
   bool clearUploadPictures();
-  std::optional<String> upload(UploadData data);
+  String upload(UploadData data, const std::function<void(int, int)> &callback);
   bool download(String url, Path path);
 };
 

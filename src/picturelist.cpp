@@ -75,9 +75,9 @@ void PictureList::removeInvalid() {
     if (!std::filesystem::exists(path.toStdString())) {
       this->removeItemWidget(item);
       delete item;
-      emit modified();
     }
   }
+  emit modified();
 }
 
 void PictureList::removeSelected() {
