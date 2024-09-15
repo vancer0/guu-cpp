@@ -43,6 +43,7 @@ utils::createTorrent(Path path,
   t.add_tracker("http://tracker.gaytor.rent:2710/announce");
   String creator = "GayTor.rent Upload Utility v" + std::to_string(VERSION);
   t.set_creator(creator.c_str());
+  t.set_priv(true);
 
   int pieces = t.num_pieces();
   lt::set_piece_hashes(t, path.parent_path().string(),
