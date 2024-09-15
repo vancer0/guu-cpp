@@ -4,12 +4,14 @@
 #include "sago/platform_folders.h"
 #include "types.h"
 #include <filesystem>
+#include <functional>
 
 namespace utils {
 Path configDirPath();
 Path tempDirPath();
 Path logPath();
-byteData createTorrent(Path path);
+byteData createTorrent(Path path,
+                       const std::function<void(int, int)> &progressCallback);
 int fetchLatestVersion();
 void checkForUpdates(bool msgIfLatest);
 bool checkIfCommandExists(String cmd);

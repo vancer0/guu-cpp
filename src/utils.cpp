@@ -33,15 +33,22 @@ Path utils::tempDirPath() {
 
 Path utils::logPath() { return utils::configDirPath() / "log.txt"; }
 
-byteData utils::createTorrent(Path path) {
+byteData
+utils::createTorrent(Path path,
+                     std::function<void(int, int)> const &progressCallback) {
   lt::file_storage fs;
   lt::add_files(fs, path.string());
+
   lt::create_torrent t(fs);
   t.add_tracker("http://tracker.gaytor.rent:2710/announce");
   String creator = "GayTor.rent Upload Utility v" + std::to_string(VERSION);
   t.set_creator(creator.c_str());
+
+  int pieces = t.num_pieces();
   lt::set_piece_hashes(t, path.parent_path().string(),
-                       [](lt::piece_index_t const p) {});
+                       [progressCallback, pieces](lt::piece_index_t const p) {
+                         progressCallback((int)p, pieces);
+                       });
 
   byteData torrent = t.generate_buf();
   return torrent;

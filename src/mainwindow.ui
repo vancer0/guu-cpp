@@ -549,7 +549,7 @@ Pictures</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QWidget" name="widget" native="true">
+           <widget class="QWidget" name="infoWidg" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -637,7 +637,7 @@ Pictures</string>
            </widget>
           </item>
           <item>
-           <widget class="QWidget" name="widget_5" native="true">
+           <widget class="QWidget" name="uploadBox" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>

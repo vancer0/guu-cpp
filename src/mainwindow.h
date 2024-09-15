@@ -69,7 +69,8 @@ public:
   void beginUpload();
   void showUploadWarning(const QString &text);
   void showUploadError(const QString &text);
-  void finishUpload();
+  void finishUpload(bool showDialog);
+  void cancelUpload();
 
   void openWebUI();
 

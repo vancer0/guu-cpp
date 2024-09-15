@@ -123,11 +123,12 @@ void MainWindow::uiSetup() {
 
 void MainWindow::enableItemsAll(bool enable) {
   ui->fileBox->setEnabled(enable);
-  ui->category->setEnabled(enable);
+  ui->categoriesBox->setEnabled(enable);
   ui->subcategs->setEnabled(enable);
   ui->picturesBox->setEnabled(enable);
-  ui->infoBox->setEnabled(enable);
-  ui->loginBtn->setEnabled(enable);
+  ui->statusBox->setEnabled(enable);
+  ui->infoWidg->setEnabled(enable);
+  ui->uploadBtn->setEnabled(enable);
 
   if (enable)
     this->enableItemsAuto();
@@ -563,7 +564,8 @@ void MainWindow::beginUpload() {
   connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
   connect(worker, &UploadWorker::finished, thread, &QThread::quit);
   connect(worker, &UploadWorker::errorRaised, thread, &QThread::quit);
-  connect(worker, &UploadWorker::finished, this, &MainWindow::finishUpload);
+  connect(worker, &UploadWorker::finished, this,
+          [this]() { this->finishUpload(true); });
 
   UploadWorker::WorkerInputData data;
   data.api = Api;
@@ -607,14 +609,10 @@ void MainWindow::showUploadError(const QString &text) {
   qCritical() << "Upload failed:" << text;
   QMessageBox::warning(this, "GUU - Error", text);
 
-  this->enableItemsAll(true);
-  ui->uploadStatus->setMaximum(1);
-  ui->uploadStatus->setValue(0);
-  ui->uploadStatus->setFormat("Waiting...");
+  this->finishUpload(false);
 }
 
-void MainWindow::finishUpload() {
-  thread->wait();
+void MainWindow::finishUpload(bool showDialog) {
   delete thread;
   delete worker;
 
@@ -623,9 +621,10 @@ void MainWindow::finishUpload() {
   ui->uploadStatus->setValue(0);
   ui->uploadStatus->setFormat("Waiting...");
 
-  qInfo() << "Upload complete";
-  QMessageBox::information(this, "GUU - Success",
-                           "Your torrent has been uploaded!");
+  qInfo() << "Upload thread finished";
+  if (showDialog)
+    QMessageBox::information(this, "GUU - Success",
+                             "Your torrent has been uploaded!");
 }
 
 void MainWindow::closeEvent(QCloseEvent *bar) {
