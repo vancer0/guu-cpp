@@ -14,6 +14,7 @@ public:
   struct WorkerInputData {
     API *api = nullptr;
     Path path = "";
+    bool forceV1 = false;
     String categ = "";
     String sCateg1 = "";
     String sCateg2 = "";

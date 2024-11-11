@@ -570,6 +570,7 @@ void MainWindow::beginUpload() {
   UploadWorker::WorkerInputData data;
   data.api = Api;
   data.path = ui->path->text().toStdString();
+  data.forceV1 = Cfg->forceV1;
   data.title = ui->title->text().toStdString();
   data.description = ui->description->toPlainText().toStdString();
   data.images = {};

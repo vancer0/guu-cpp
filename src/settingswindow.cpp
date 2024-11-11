@@ -155,6 +155,7 @@ void SettingsWindow::loadSettings() {
     ui->checkUpdates->setChecked(Cfg->updateCheck);
     ui->saveWarn->setChecked(Cfg->saveWarn);
     ui->autoLogin->setChecked(Cfg->saveLogin);
+    ui->forceV1->setChecked(Cfg->forceV1);
     ui->gtUsername->setText(QString::fromStdString(Cfg->gtUsername));
     ui->gtPassword->setText(QString::fromStdString(Cfg->gtPassword));
     ui->autoDl->setChecked(Cfg->autoDl);
@@ -180,6 +181,7 @@ void SettingsWindow::saveSettings() {
     Cfg->updateCheck = ui->checkUpdates->isChecked();
     Cfg->saveWarn = ui->saveWarn->isChecked();
     Cfg->saveLogin = ui->autoLogin->isChecked();
+    Cfg->forceV1 = ui->forceV1->isChecked();
     Cfg->gtUsername = ui->gtUsername->text().toStdString();
     Cfg->gtPassword = ui->gtPassword->text().toStdString();
     Cfg->autoDl = ui->autoDl->isChecked();

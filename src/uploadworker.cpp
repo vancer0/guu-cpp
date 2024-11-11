@@ -38,8 +38,8 @@ void UploadWorker::doWork() {
 
   byteData torrent;
   try {
-    torrent =
-        utils::createTorrent(Data.path, [this, currStage](int curr, int total) {
+    torrent = utils::createTorrent(
+        Data.path, Data.forceV1, [this, currStage](int curr, int total) {
           float p = 200.0 * ((float)curr / (float)total);
           emit valueChanged(currStage + (int)p);
           emit textChanged("Creating torrent... (" + QString::number(curr) +

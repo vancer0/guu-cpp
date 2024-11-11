@@ -551,6 +551,16 @@ the torrent will be copied to your clipboard
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="forceV1">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enabling this option will force the program to generate torrents as V1 type. This is generally not recommended unless you are using an older torrent client which does not support V2 metadata and padding.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Force legacy torrent creation</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="checkUpdates">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">

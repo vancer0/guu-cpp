@@ -11,6 +11,7 @@ Path configDirPath();
 Path tempDirPath();
 Path logPath();
 byteData createTorrent(Path path,
+                       bool forceV1,
                        const std::function<void(int, int)> &progressCallback);
 int fetchLatestVersion();
 void checkForUpdates(bool msgIfLatest);

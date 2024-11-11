@@ -22,6 +22,7 @@ public:
 
   bool updateCheck = true;
   bool saveWarn = true;
+  bool forceV1 = false;
 
   bool saveLogin = false;
   String gtUsername = "";

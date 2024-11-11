@@ -27,6 +27,7 @@ void Settings::load() {
     updateCheck = cfg.value("updateCheck", updateCheck);
     saveWarn = cfg.value("saveWarn", saveWarn);
     saveLogin = cfg.value("saveLogin", saveLogin);
+    forceV1 = cfg.value("forceV1", forceV1);
     gtUsername = cfg.value("gtUsername", gtUsername);
     gtPassword = cfg.value("gtPassword", gtPassword);
     autoDl = cfg.value("autoDl", autoDl);
@@ -64,6 +65,7 @@ void Settings::save() {
       {"updateCheck", updateCheck},
       {"saveWarn", saveWarn},
       {"saveLogin", saveLogin},
+      {"forceV1", forceV1},
       {"gtUsername", gtUsername},
       {"gtPassword", gtPassword},
       {"autoDl", autoDl},
