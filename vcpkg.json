@@ -5,5 +5,11 @@
     "libtorrent",
     "nlohmann-json",
     "platform-folders"
+  ],
+  "overrides": [
+    {
+      "name": "libtorrent",
+      "version": "2.0.10"
+    }
   ]
 }
