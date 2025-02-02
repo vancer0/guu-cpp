@@ -101,7 +101,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Copyright © 2022-2024 &lt;/span&gt;&lt;a href=&quot;https://github.com/vancer0&quot;&gt;&lt;span style=&quot; font-size:12pt; text-decoration: underline; color:#c04a14;&quot;&gt;vancer&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Copyright © 2022-2025 &lt;/span&gt;&lt;a href=&quot;https://github.com/vancer0&quot;&gt;&lt;span style=&quot; font-size:12pt; text-decoration: underline; color:#c04a14;&quot;&gt;vancer&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="openExternalLinks">
             <bool>true</bool>
