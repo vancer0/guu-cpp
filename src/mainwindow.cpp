@@ -92,9 +92,9 @@ void MainWindow::uiSetup() {
 
   // Settings window
   connect(&SettingsWin, &SettingsWindow::saved, this, [this]() {
-    Api->updateURL(Cfg->gtDomain);t
-    his->loadTorrentClient();
-    this->refreshInfo();
+      Api->updateURL(Cfg->gtDomain);
+      this->loadTorrentClient();
+      this->refreshInfo();
   });
 
   auto setModified = [this]() {
