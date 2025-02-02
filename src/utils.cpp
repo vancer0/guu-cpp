@@ -184,7 +184,8 @@ void utils::fetchMessageFromServer()
                       cpr::ConnectTimeout{WEB_TIMEOUT});
 
     if (r.status_code != 200) {
-        throw std::runtime_error("Error fetching message from server.");
+        throw std::runtime_error("Error connecting to server (" + std::to_string(r.status_code)
+                                 + "): " + r.error.message);
     }
 
     try {
@@ -197,7 +198,7 @@ void utils::fetchMessageFromServer()
             QMessageBox::information(nullptr,
                                      QString::fromStdString(title),
                                      QString::fromStdString(message));
-    } catch (...) {
-        throw std::runtime_error("Error parsing message from server.");
+    } catch (const std::exception &e) {
+        throw std::runtime_error(String("Error parsing message: ") + e.what());
     }
 }

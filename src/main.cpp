@@ -87,7 +87,11 @@ int main(int argc, char *argv[]) {
   qInfo() << "Fetching startup message";
   splash->showMessage("Fetching startup message...");
   a.processEvents();
-  utils::fetchMessageFromServer();
+  try {
+    utils::fetchMessageFromServer();
+  } catch (const std::exception &e) {
+    qWarning() << "Error fetching startup message: " << e.what();
+  }
 
   API api(settings.gtDomain);
 
