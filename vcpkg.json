@@ -1,15 +1,9 @@
 {
   "dependencies": [
-    "curl",
+    "cpr",
     "jwt-cpp",
     "libtorrent",
     "nlohmann-json",
     "platform-folders"
-  ],
-  "overrides": [
-    {
-      "name": "curl",
-      "version": "8.10.0"
-    }
   ]
 }

@@ -85,6 +85,11 @@ int main(int argc, char *argv[]) {
     utils::checkForUpdates(false);
   }
 
+  qInfo() << "Fetching startup message";
+  splash->showMessage("Fetching startup message...");
+  a.processEvents();
+  utils::fetchMessageFromServer();
+
   if (settings.saveLogin) {
     qInfo() << "Performing startup login";
     splash->showMessage("Logging in...");

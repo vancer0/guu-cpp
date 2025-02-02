@@ -17,6 +17,7 @@ int fetchLatestVersion();
 void checkForUpdates(bool msgIfLatest);
 bool checkIfCommandExists(String cmd);
 Path autoDetectqBitTorrentPath();
+void fetchMessageFromServer();
 
 #ifdef _WIN32
 void installWindowsUpdate(String url);

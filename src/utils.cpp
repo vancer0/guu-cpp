@@ -174,3 +174,30 @@ Path utils::autoDetectUTorrentPath() {
   return "";
 }
 #endif
+
+void utils::fetchMessageFromServer()
+{
+    String url = "https://raw.githubusercontent.com/vancer0/guu-cpp/refs/heads/online/data.json";
+
+    auto r = cpr::Get(cpr::Url{url},
+                      cpr::Header{{"User-Agent", "GUU Updater"}},
+                      cpr::ConnectTimeout{WEB_TIMEOUT});
+
+    if (r.status_code != 200) {
+        throw std::runtime_error("Error fetching message from server.");
+    }
+
+    try {
+        json data = json::parse(r.text);
+        auto msg = data["startupMessage"];
+        String title = msg["title"];
+        String message = msg["message"];
+
+        if (title != "")
+            QMessageBox::information(nullptr,
+                                     QString::fromStdString(title),
+                                     QString::fromStdString(message));
+    } catch (...) {
+        throw std::runtime_error("Error parsing message from server.");
+    }
+}
