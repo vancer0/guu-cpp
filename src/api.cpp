@@ -5,12 +5,15 @@
 #undef min
 #include "jwt-cpp/traits/nlohmann-json/traits.h"
 
-API::API() {
-  Url = "https://gaytor.rent";
-  try {
-    categories.loadFromFile();
-  } catch (...) {
-  }
+String API::Domains[] = {"https://gaytor.rent", "https://gaytorrent.ru"};
+
+API::API(int urlIdx)
+{
+    Url = Domains[urlIdx];
+    try {
+        categories.loadFromFile();
+    } catch (...) {
+    }
 }
 
 bool API::isServerOnline() {
@@ -41,12 +44,12 @@ bool API::login(String username, String password) {
 }
 
 bool API::isLoggedIn() {
-  auto r = cpr::Get(cpr::Url{Url + "/qtm.php"}, Cookies);
+    auto r = cpr::Get(cpr::Url{Url + "/qtm.php"}, Cookies);
 
-  LastError = r.error;
-  LastStatusCode = r.status_code;
+    LastError = r.error;
+    LastStatusCode = r.status_code;
 
-  return r.status_code == 200;
+    return r.status_code == 200;
 }
 
 bool API::logout() {

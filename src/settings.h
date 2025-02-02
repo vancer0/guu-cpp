@@ -25,6 +25,7 @@ public:
   bool forceV1 = false;
 
   bool saveLogin = false;
+  int gtDomain = 0;
   String gtUsername = "";
   String gtPassword = "";
 

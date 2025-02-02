@@ -36,12 +36,11 @@ SettingsWindow::SettingsWindow(QWidget *parent)
             this->loadSettings();
             this->hide();
           });
-  connect(ui->save->button(QDialogButtonBox::Ok), &QPushButton::pressed, this,
-          [this]() {
-            this->saveSettings();
-            emit saved();
-            this->hide();
-          });
+  connect(ui->save->button(QDialogButtonBox::Ok), &QPushButton::pressed, this, [this]() {
+      this->saveSettings();
+      emit saved();
+      this->hide();
+  });
 }
 
 SettingsWindow::~SettingsWindow() { delete ui; }
@@ -156,6 +155,7 @@ void SettingsWindow::loadSettings() {
     ui->saveWarn->setChecked(Cfg->saveWarn);
     ui->autoLogin->setChecked(Cfg->saveLogin);
     ui->forceV1->setChecked(Cfg->forceV1);
+    ui->domainSelect->setCurrentIndex(Cfg->gtDomain);
     ui->gtUsername->setText(QString::fromStdString(Cfg->gtUsername));
     ui->gtPassword->setText(QString::fromStdString(Cfg->gtPassword));
     ui->autoDl->setChecked(Cfg->autoDl);
@@ -182,6 +182,7 @@ void SettingsWindow::saveSettings() {
     Cfg->saveWarn = ui->saveWarn->isChecked();
     Cfg->saveLogin = ui->autoLogin->isChecked();
     Cfg->forceV1 = ui->forceV1->isChecked();
+    Cfg->gtDomain = ui->domainSelect->currentIndex();
     Cfg->gtUsername = ui->gtUsername->text().toStdString();
     Cfg->gtPassword = ui->gtPassword->text().toStdString();
     Cfg->autoDl = ui->autoDl->isChecked();

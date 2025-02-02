@@ -16,6 +16,7 @@ private:
   String Url;
   cpr::Cookies Cookies;
   CategoriesParser categories;
+  static String Domains[];
 
   cpr::Error LastError;
   int LastStatusCode = -1;
@@ -33,9 +34,9 @@ public:
     String description;
   };
 
-  API();
+  API(int urlIdx);
 
-  void updateURL(String url) { Url = url; }
+  void updateURL(int urlIdx) { Url = Domains[urlIdx]; }
   bool isServerOnline();
   cpr::Error getLastError() { return LastError; }
   int getLastStatusCode() { return LastStatusCode; }

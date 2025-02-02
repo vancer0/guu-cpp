@@ -61,7 +61,6 @@ int main(int argc, char *argv[]) {
     a.processEvents();
 
   Settings settings;
-  API api;
 
   qInfo() << "Loading settings";
   splash->showMessage("Loading settings...");
@@ -89,6 +88,8 @@ int main(int argc, char *argv[]) {
   splash->showMessage("Fetching startup message...");
   a.processEvents();
   utils::fetchMessageFromServer();
+
+  API api(settings.gtDomain);
 
   if (settings.saveLogin) {
     qInfo() << "Performing startup login";
