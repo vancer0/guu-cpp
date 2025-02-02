@@ -5,7 +5,7 @@
 #undef min
 #include "jwt-cpp/traits/nlohmann-json/traits.h"
 
-String API::Domains[] = {"https://gaytor.rent", "https://gaytorrent.ru"};
+String API::Domains[] = {"https://www.gaytor.rent", "https://www.gaytorrent.ru"};
 
 API::API(int urlIdx)
 {
@@ -26,25 +26,24 @@ bool API::isServerOnline() {
 }
 
 bool API::login(String username, String password) {
-  auto r =
-      cpr::Post(cpr::Url{Url + "/takelogin.php"},
-                cpr::Multipart{{"username", username}, {"password", password}});
+    auto r = gtPost(cpr::Url{Url + "/takelogin.php"},
+                    cpr::Multipart{{"username", username}, {"password", password}});
 
-  Cookies = r.cookies;
-  LastError = r.error;
-  LastStatusCode = r.status_code;
+    Cookies = r.cookies;
+    LastError = r.error;
+    LastStatusCode = r.status_code;
 
-  bool success = this->isLoggedIn();
+    bool success = this->isLoggedIn();
 
-  if (success) {
-    this->downloadCategories();
-  }
+    if (success) {
+        this->downloadCategories();
+    }
 
   return success;
 }
 
 bool API::isLoggedIn() {
-    auto r = cpr::Get(cpr::Url{Url + "/qtm.php"}, Cookies);
+    auto r = gtGet(cpr::Url{Url + "/qtm.php"});
 
     LastError = r.error;
     LastStatusCode = r.status_code;
@@ -53,13 +52,13 @@ bool API::isLoggedIn() {
 }
 
 bool API::logout() {
-  auto r = cpr::Get(cpr::Url{Url + "/logout.php"}, Cookies);
+    auto r = gtGet(cpr::Url{Url + "/logout.php"});
 
-  Cookies = r.cookies;
-  LastError = r.error;
-  LastStatusCode = r.status_code;
+    Cookies = r.cookies;
+    LastError = r.error;
+    LastStatusCode = r.status_code;
 
-  return !this->isLoggedIn();
+    return !this->isLoggedIn();
 }
 
 bool API::hasCategories() { return !categories.isEmpty(); }
@@ -68,7 +67,7 @@ void API::downloadCategories() {
   if (!this->isLoggedIn())
     return;
 
-  auto r = cpr::Get(cpr::Url{Url + "/genrelist.php"}, Cookies);
+  auto r = gtGet(cpr::Url{Url + "/genrelist.php"});
 
   LastError = r.error;
   LastStatusCode = r.status_code;
@@ -101,13 +100,12 @@ String API::fetchUsername() {
 }
 
 bool API::clearUploadPictures() {
-  auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies,
-                     cpr::Multipart{{"delpic", "Remove"}});
+    auto r = gtPost(cpr::Url{Url + "/doupload.php"}, cpr::Multipart{{"delpic", "Remove"}});
 
-  LastError = r.error;
-  LastStatusCode = r.status_code;
+    LastError = r.error;
+    LastStatusCode = r.status_code;
 
-  return r.status_code == 200;
+    return r.status_code == 200;
 }
 
 String API::upload(UploadData data,
@@ -119,8 +117,8 @@ String API::upload(UploadData data,
   for (int i = 0; i < totalPics; i++) {
     callback(i, totalSteps);
     Path pic = data.picPaths[i];
-    cpr::Multipart picUplData{{"ulpic[]", cpr::File{pic.string()}}};
-    auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies, picUplData);
+    cpr::Multipart picUplData{{"upload", "Upload"}, {"ulpic", cpr::File{pic.string()}}};
+    auto r = gtPost(cpr::Url{Url + "/doupload.php"}, picUplData);
 
     if (r.status_code != 200) {
       throw std::runtime_error("Error uploading picture " + pic.string() +
@@ -139,14 +137,14 @@ String API::upload(UploadData data,
   uplData.parts.push_back({"scat3", data.sCateg3});
   uplData.parts.push_back({"scat4", data.sCateg4});
   uplData.parts.push_back({"name", data.title});
-  uplData.parts.push_back({"infourl", ""});
+  uplData.parts.push_back({"qtm", "yes"});
   uplData.parts.push_back({"descr", data.description});
-  uplData.parts.push_back({"checktorrent", "Do it!"});
+  uplData.parts.push_back({"checktorrent", 1});
   uplData.parts.push_back(
       {"file",
        cpr::Buffer{data.torrent.begin(), data.torrent.end(), "upl.torrent"}});
 
-  auto r = cpr::Post(cpr::Url{Url + "/doupload.php"}, Cookies, uplData);
+  auto r = gtPost(cpr::Url{Url + "/doupload.php"}, uplData);
 
   callback(totalSteps, totalSteps);
 
@@ -180,7 +178,7 @@ bool API::download(String url, Path path) {
   String dlUrl = Url + "/download.php/" + id + "/dl.torrent";
 
   std::ofstream of(path, std::ios::binary);
-  cpr::Response r = cpr::Download(of, cpr::Url{dlUrl}, Cookies);
+  cpr::Response r = gtDownload(of, cpr::Url{dlUrl});
 
   LastError = r.error;
   LastStatusCode = r.status_code;

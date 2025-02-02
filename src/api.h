@@ -11,6 +11,9 @@
 #include <regex>
 #include <vector>
 
+const String USERAGENT = "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (QTM-KHTML, like "
+                         "Gecko) Chrome/30.0.1599.17 Safari/537.36";
+
 class API {
 private:
   String Url;
@@ -20,6 +23,24 @@ private:
 
   cpr::Error LastError;
   int LastStatusCode = -1;
+
+  template<class... Ts>
+  cpr::Response gtGet(Ts &&...ts)
+  {
+      return cpr::Get(std::forward<Ts>(ts)..., Cookies, cpr::Header{{"User-Agent", USERAGENT}});
+  }
+
+  template<class... Ts>
+  cpr::Response gtPost(Ts &&...ts)
+  {
+      return cpr::Post(std::forward<Ts>(ts)..., Cookies, cpr::Header{{"User-Agent", USERAGENT}});
+  }
+
+  template<class... Ts>
+  cpr::Response gtDownload(Ts &&...ts)
+  {
+      return cpr::Download(std::forward<Ts>(ts)..., Cookies, cpr::Header{{"User-Agent", USERAGENT}});
+  }
 
 public:
   struct UploadData {
